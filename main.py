@@ -40,14 +40,22 @@ def getlist(file):
     #Create a 50 values list (gray value average each 2% of the germline)
     #For this it takes the rolling average value each (window50) pixels
     point_list_50 = [round(value,2) for x, value in enumerate(roll_df_list) if x in points_to_take]
-    print(point_list_50)
+    return point_list_50
 
 
 entries = os.listdir('Values/')
 print(entries)
 
+d={}
 for file in entries:
-    getlist(f'Values/{file}')
+    d[file] = getlist(f'Values/{file}')
+
+print(d)
+
+df = pd.DataFrame(d)
+df["average"] = round(df.mean(axis=1),2)
+df["stddev"] = round(df.std(axis=1),2)
+print(df)
 
 # TODO 6: be able to aggregate multiple germlines
 
