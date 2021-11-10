@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
 
 # 1: Full germline image , make the line in imageJ
 # Manual
@@ -56,6 +57,8 @@ df = pd.DataFrame(d)
 df["average"] = round(df.mean(axis=1),2)
 df["stddev"] = round(df.std(axis=1),2)
 print(df)
+plt.errorbar(df.index, df.average, df.stddev, linestyle=':', marker='^', capsize=3)
+plt.show()
 
 # TODO 6: be able to aggregate multiple germlines
 
