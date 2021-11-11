@@ -1,4 +1,4 @@
-from flask import Flask, g, render_template, redirect, url_for, flash, request
+from flask import Flask, g, render_template, redirect, url_for, flash, request, Response
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from datetime import date
@@ -12,9 +12,14 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, URL, email
 from werkzeug.utils import secure_filename
-from graph import getlist
+from graph import getlist, dataframe_proccess
 import os
 import pandas as pd
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+import io
+import matplotlib.pyplot as plt
+import random
 
 # Get current path
 path = os.getcwd()
@@ -33,6 +38,8 @@ app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 Bootstrap(app)
 
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -42,8 +49,14 @@ def upload_form():
     return render_template('upload.html')
 
 
+def nocache(response):
+    """Add Cache-Control headers to disable caching a response"""
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+
 @app.route('/', methods=['POST'])
-def upload_file():
+def upload():
     if request.method == 'POST':
 
         if 'files[]' not in request.files:
@@ -57,9 +70,20 @@ def upload_file():
             filename = secure_filename(file.filename)
             d[filename] = getlist(file)
 
-        print(d)
         df = pd.DataFrame(d)
-        print(df)
+        df["average"] = round(df.mean(axis=1), 2)
+        df["stddev"] = round(df.std(axis=1), 2)
+
+        fig = Figure()
+        fig.add_subplot(1, 1, 1).errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
+                                          elinewidth=0.7)
+        output = io.BytesIO()
+        FigureCanvas(fig).print_png(output)
+        return Response(output.getvalue(), mimetype='image/png')
+
+        # plt.title("MES-4::GFP", fontsize=12)
+        # plt.gca().set_xlabel('Gonad length', fontsize=10)
+        # plt.gca().set_ylabel('Fluorescence intensity', fontsize=10)
 
         #save files if we want
         # for file in files:
@@ -67,11 +91,11 @@ def upload_file():
         #         filename = secure_filename(file.filename)
         #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        flash('File(s) successfully uploaded')
-        return redirect('/')
 
-def dataframe_proccess(dictionary):
-    pass
+    return render_template('upload.html')
+
+
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

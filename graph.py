@@ -1,6 +1,9 @@
 import pandas as pd
 import os
+import io
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 # 1: Full germline image , make the line in imageJ
 # Manual
@@ -43,6 +46,19 @@ def getlist(file):
     point_list_50 = [round(value,2) for x, value in enumerate(roll_df_list) if x in points_to_take]
     return point_list_50
 
+def dataframe_proccess(dictionary):
+    df = pd.DataFrame(dictionary)
+    df["average"] = round(df.mean(axis=1),2)
+    df["stddev"] = round(df.std(axis=1),2)
+    print(df)
+    fig = Figure()
+    plt.errorbar(df.index*2, df.average, df.stddev, linestyle=':', marker='^', capsize=3, elinewidth=0.7)
+    plt.title("MES-4::GFP", fontsize=12)
+    plt.gca().set_xlabel('Gonad length', fontsize=10)
+    plt.gca().set_ylabel('Fluorescence intensity', fontsize=10)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return output
 
 # entries = os.listdir('Values/')
 # print(entries)
