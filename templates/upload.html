@@ -18,7 +18,7 @@
           {% endif %}
         {% endwith %}
     </p>
-    <form method="post" action="/" enctype="multipart/form-data">
+    <form method="post" action="/upload" enctype="multipart/form-data">
         <dl>
             <p>
                 <input type="file" name="files[]" multiple="true" autocomplete="off" required>
@@ -28,7 +28,9 @@
             <input type="submit" value="Submit">
         </p>
     </form>
-    <img src="{{ image }}" alt="my plot">
+    <img class="graph-img" src="{{ image }}" alt="Not Found" onerror=this.src="static/images/graph_icon.png">
+
+
 
 </body>
 </html>

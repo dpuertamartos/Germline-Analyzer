@@ -44,13 +44,11 @@ Bootstrap(app)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
 @app.route('/')
-def upload_form():
-    return render_template('upload.html')
+def home():
+    return render_template('index.html')
 
-
-@app.route('/', methods=['POST'])
+@app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
 
@@ -98,7 +96,7 @@ def upload():
         #         filename = secure_filename(file.filename)
         #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-
+    return render_template('upload.html')
 
 
 
