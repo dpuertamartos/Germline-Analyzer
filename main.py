@@ -1,3 +1,4 @@
+import base64
 from flask import Flask, g, render_template, redirect, url_for, flash, request, Response
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
@@ -49,12 +50,6 @@ def upload_form():
     return render_template('upload.html')
 
 
-def nocache(response):
-    """Add Cache-Control headers to disable caching a response"""
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-    return response
-
-
 @app.route('/', methods=['POST'])
 def upload():
     if request.method == 'POST':
@@ -77,9 +72,15 @@ def upload():
         fig = Figure()
         fig.add_subplot(1, 1, 1).errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
                                           elinewidth=0.7)
-        output = io.BytesIO()
-        FigureCanvas(fig).print_png(output)
-        return Response(output.getvalue(), mimetype='image/png')
+        # Convert plot to PNG image
+        pngImage = io.BytesIO()
+        FigureCanvas(fig).print_png(pngImage)
+
+        # Encode PNG image to base64 string
+        pngImageB64String = "data:image/png;base64,"
+        pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
+
+        return render_template('upload.html', image=pngImageB64String)
 
         # plt.title("MES-4::GFP", fontsize=12)
         # plt.gca().set_xlabel('Gonad length', fontsize=10)
@@ -92,7 +93,7 @@ def upload():
         #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
 
-    return render_template('upload.html')
+
 
 
 
