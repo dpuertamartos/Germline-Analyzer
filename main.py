@@ -65,10 +65,9 @@ def upload():
             filename = secure_filename(file.filename)
             d[filename] = getlist(file)
 
-        df = pd.DataFrame(d)
-        df["average"] = round(df.mean(axis=1), 2)
-        df["stddev"] = round(df.std(axis=1), 2)
+        df = dataframe_proccess(d)
 
+        #Create figure for the graph and plot it
         fig = Figure()
         fig.add_subplot(1, 1, 1).errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
                                           elinewidth=0.7)

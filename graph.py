@@ -50,15 +50,7 @@ def dataframe_proccess(dictionary):
     df = pd.DataFrame(dictionary)
     df["average"] = round(df.mean(axis=1),2)
     df["stddev"] = round(df.std(axis=1),2)
-    print(df)
-    fig = Figure()
-    plt.errorbar(df.index*2, df.average, df.stddev, linestyle=':', marker='^', capsize=3, elinewidth=0.7)
-    plt.title("MES-4::GFP", fontsize=12)
-    plt.gca().set_xlabel('Gonad length', fontsize=10)
-    plt.gca().set_ylabel('Fluorescence intensity', fontsize=10)
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return output
+    return df
 
 # entries = os.listdir('Values/')
 # print(entries)
