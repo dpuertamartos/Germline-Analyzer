@@ -61,7 +61,14 @@ def upload():
         files = request.files.getlist('files[]')
 
         d = {}
+
+        #create dictionary with all the files
+        #flash error if files are not csv
+
         for file in files:
+            if not allowed_file(file.filename):
+                flash('Please upload only .csv (excel) files')
+                return redirect(request.url)
             filename = secure_filename(file.filename)
             d[filename] = getlist(file)
 
