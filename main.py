@@ -12,7 +12,9 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, URL, email
 from werkzeug.utils import secure_filename
+from graph import getlist
 import os
+import pandas as pd
 
 # Get current path
 path = os.getcwd()
@@ -24,7 +26,7 @@ if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
 
 # Allowed extension you can set your own
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['csv'])
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
@@ -50,13 +52,26 @@ def upload_file():
 
         files = request.files.getlist('files[]')
 
+        d = {}
         for file in files:
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            filename = secure_filename(file.filename)
+            d[filename] = getlist(file)
+
+        print(d)
+        df = pd.DataFrame(d)
+        print(df)
+
+        #save files if we want
+        # for file in files:
+        #     if file and allowed_file(file.filename):
+        #         filename = secure_filename(file.filename)
+        #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         flash('File(s) successfully uploaded')
         return redirect('/')
+
+def dataframe_proccess(dictionary):
+    pass
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

@@ -44,23 +44,23 @@ def getlist(file):
     return point_list_50
 
 
-entries = os.listdir('Values/')
-print(entries)
-
-d={}
-for file in entries:
-    d[file] = getlist(f'Values/{file}')
-
-print(d)
-
-df = pd.DataFrame(d)
-df["average"] = round(df.mean(axis=1),2)
-df["stddev"] = round(df.std(axis=1),2)
-print(df)
-plt.errorbar(df.index*2, df.average, df.stddev, linestyle=':', marker='^', capsize=3, elinewidth=0.7)
-plt.title("MES-4::GFP", fontsize=12)
-plt.gca().set_xlabel('Gonad length', fontsize=10)
-plt.gca().set_ylabel('Fluorescence intensity', fontsize=10)
-plt.show()
+# entries = os.listdir('Values/')
+# print(entries)
+#
+# d={}
+# for file in entries:
+#     d[file] = getlist(f'Values/{file}')
+#
+# print(d)
+#
+# df = pd.DataFrame(d)
+# df["average"] = round(df.mean(axis=1),2)
+# df["stddev"] = round(df.std(axis=1),2)
+# print(df)
+# plt.errorbar(df.index*2, df.average, df.stddev, linestyle=':', marker='^', capsize=3, elinewidth=0.7)
+# plt.title("MES-4::GFP", fontsize=12)
+# plt.gca().set_xlabel('Gonad length', fontsize=10)
+# plt.gca().set_ylabel('Fluorescence intensity', fontsize=10)
+# plt.show()
 
 # TODO 8: make it a webapp with flask
