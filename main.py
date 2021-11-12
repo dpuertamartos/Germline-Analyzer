@@ -59,12 +59,13 @@ def index():
 
         #create dictionary with all the files
         #flash error if files are not csv
-
+        filenamelist=[]
         for file in files:
             if not allowed_file(file.filename):
                 flash('Please upload only .csv (excel) files')
                 return redirect(request.url)
             filename = secure_filename(file.filename)
+            filenamelist.append(filename)
             d[filename] = getlist(file)
 
         df = dataframe_proccess(d)
@@ -81,7 +82,7 @@ def index():
         pngImageB64String = "data:image/png;base64,"
         pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
 
-        return render_template('index.html', image=pngImageB64String)
+        return render_template('index.html', image=pngImageB64String, files=filenamelist)
 
         # plt.title("MES-4::GFP", fontsize=12)
         # plt.gca().set_xlabel('Gonad length', fontsize=10)
