@@ -39,19 +39,14 @@ app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Bootstrap(app)
 
-@app.route('/index2')
-def home2():
-    return render_template('index2.html')
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/')
-def home():
-    return render_template('index.html')
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload():
+@app.route('/', methods=['GET', 'POST'])
+def index():
     if request.method == 'POST':
 
         if 'files[]' not in request.files:
@@ -86,7 +81,7 @@ def upload():
         pngImageB64String = "data:image/png;base64,"
         pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
 
-        return render_template('upload.html', image=pngImageB64String)
+        return render_template('index.html', image=pngImageB64String)
 
         # plt.title("MES-4::GFP", fontsize=12)
         # plt.gca().set_xlabel('Gonad length', fontsize=10)
@@ -98,7 +93,7 @@ def upload():
         #         filename = secure_filename(file.filename)
         #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-    return render_template('upload.html')
+    return render_template('index.html')
 
 
 
