@@ -103,6 +103,10 @@ body {
   width: 85%
 }
 
-.graph-img {
+.graph-img{
   padding: 0% 0% 10%;
+}
+
+.get-started{
+  padding: 0% 0% 5%;
 }
