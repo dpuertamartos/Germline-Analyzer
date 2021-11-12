@@ -60,7 +60,7 @@
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">
               <span data-feather="home"></span>
-              Dashboard
+              Get started
             </a>
           </li>
           <li class="nav-item">
@@ -118,49 +118,38 @@
         <h1 class="h2">Plot single strain</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
           <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+              <form method="post" action="/upload" enctype="multipart/form-data">
+                  <dl class="choosfilecontainer">
+                      <p>
+                          <input type="file" class="btn btn-outline-secondary choosebutton" name="files[]" multiple="true" autocomplete="off" required>
+                      </p>
+                  </dl>
+                  <p class="submitbuttoncontainer">
+                      <input type="submit" class="btn btn-primary submitbutton" value="Submit">
+                  </p>
+              </form>
           </div>
-          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-            <span data-feather="calendar"></span>
-            This week
-          </button>
         </div>
       </div>
-        <form method="post" action="/upload" enctype="multipart/form-data">
-            <dl>
-                <p>
-                    <input type="file" name="files[]" multiple="true" autocomplete="off" required>
-                </p>
-            </dl>
-            <p>
-                <input type="submit" value="Submit">
-            </p>
-        </form>
+
       <img class="graph-img" src="{{ image }}" alt="Not Found" onerror=this.src="../static/images/graph_icon.png">
-      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Plot multiple strain</h1>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Plot multiple strains</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group me-2">
-                    <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                    <form method="post" action="/upload" enctype="multipart/form-data">
+                        <dl class="choosfilecontainer">
+                            <p>
+                                <input type="file" class="btn btn-outline-secondary choosebutton" name="files[]" multiple="true" autocomplete="off" required>
+                            </p>
+                        </dl>
+                        <p class="submitbuttoncontainer">
+                            <input type="submit" class="btn btn-primary submitbutton" value="Submit">
+                        </p>
+                    </form>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-                    <span data-feather="calendar"></span>
-                    This week
-                </button>
             </div>
-      </div>
-        <form method="post" action="/upload" enctype="multipart/form-data">
-            <dl>
-                <p>
-                    <input type="file" name="files[]" multiple="true" autocomplete="off" required>
-                </p>
-            </dl>
-            <p>
-                <input type="submit" value="Submit">
-            </p>
-        </form>
+        </div>
       <img class="graph-img" src="{{ image }}" alt="Not Found" onerror=this.src="../static/images/graph_icon.png">
       <h2>Section title</h2>
       <div class="table-responsive">

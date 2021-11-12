@@ -98,3 +98,11 @@ body {
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
+
+.choosebutton, .submitbutton {
+  width: 85%
+}
+
+.graph-img {
+  padding: 0% 0% 10%;
+}
