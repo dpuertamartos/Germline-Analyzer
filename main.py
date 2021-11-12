@@ -37,9 +37,11 @@ ALLOWED_EXTENSIONS = set(['csv'])
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-Bootstrap(app)
+# Bootstrap(app)
 
-
+@app.route('/index2')
+def home2():
+    return render_template('index2.html')
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
