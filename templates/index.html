@@ -221,14 +221,17 @@
           <div class="btn-group me-2">
               <form method="post" action="/#plotsingle" enctype="multipart/form-data">
                   <div class="row">
-                  <div class="col sm-6">
+                  <div class="col sm-4">
                   <dl class="choosfilecontainer">
                       <p>
                           <input type="file" class="btn btn-outline-secondary choosebutton" name="files[]" multiple="true" autocomplete="off" required>
                       </p>
                   </dl>
                   </div>
-                  <div class="col sm-6">
+                  <div class="col sm-4">
+                  <input type="text" name="strainname" value="Introduce strain name" class="btn btn-outline-primary choosebutton">
+                  </div>
+                  <div class="col sm-4">
                   <p class="submitbuttoncontainer">
                       <input type="submit" class="btn btn-primary submitbutton" value="Submit">
                   </p>

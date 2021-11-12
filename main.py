@@ -54,6 +54,7 @@ def index():
             return redirect(request.url)
 
         files = request.files.getlist('files[]')
+        strain = request.form.get('strainname')
 
         d = {}
 
@@ -72,7 +73,9 @@ def index():
 
         #Create figure for the graph and plot it
         fig = Figure()
-        fig.add_subplot(1, 1, 1).errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
+        axis = fig.add_subplot(1, 1, 1)
+        axis.set_title(strain.title())
+        axis.errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
                                           elinewidth=0.7)
         # Convert plot to PNG image
         pngImage = io.BytesIO()
