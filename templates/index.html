@@ -80,9 +80,15 @@
 
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
           <span>LOADED FILES</span>
-          <a class="link-secondary" href="#" aria-label="Add a new report">
+          <a class="link-secondary" href="#plotsingle" aria-label="Plot new files">
             <span data-feather="plus-circle"></span>
           </a>
+        </h6>
+         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+          <span>{{ strain_name }}</span>
+          {% if files %}
+          <span>n = {{files|length}} </span>
+          {% endif %}
         </h6>
         <ul class="nav flex-column mb-2">
           {% for file in files %}
@@ -203,7 +209,7 @@
         <span id="plotsingle"></span>
         <hr class="my-4">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom sectcontainer">
-        <h1 class="h2">Plot single strain</h1>
+        <h1 class="h2 sectiontitle">Plot single strain</h1>
           <div>
           <p>
               {% with messages = get_flashed_messages() %}
@@ -221,17 +227,17 @@
           <div class="btn-group me-2">
               <form method="post" action="/#plotsingle" enctype="multipart/form-data">
                   <div class="row">
-                  <div class="col sm-4">
+                  <div class="col-sm-6">
                   <dl class="choosfilecontainer">
                       <p>
-                          <input type="file" class="btn btn-outline-secondary choosebutton" name="files[]" multiple="true" autocomplete="off" required>
+                          <input type="file" class="form-control choosebutton" name="files[]" multiple="true" autocomplete="off" required>
                       </p>
                   </dl>
                   </div>
-                  <div class="col sm-4">
-                  <input type="text" name="strainname" value="Introduce strain name" class="btn btn-outline-primary choosebutton">
+                  <div class="col-sm-4">
+                  <input type="text" name="strainname" value="Introduce strain name" class="input-group-text choosebutton">
                   </div>
-                  <div class="col sm-4">
+                  <div class="col-sm-2">
                   <p class="submitbuttoncontainer">
                       <input type="submit" class="btn btn-primary submitbutton" value="Submit">
                   </p>
@@ -245,7 +251,7 @@
       <img class="img-fluid graph-img" src="{{ image }}" alt="Not Found" onerror=this.src="../static/images/line-graph.png">
         <hr class="my-4">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom sectcontainer" id="plotmultiple">
-            <h1 class="h2">Plot multiple strains</h1>
+            <h1 class="h2 sectiontitle">Plot multiple strains</h1>
             <div>
                 <p>
                     {% with messages = get_flashed_messages() %}
@@ -263,10 +269,10 @@
                 <div class="btn-group me-2">
                     <form method="post" action="/#plotmultiple" enctype="multipart/form-data">
                       <div class="row">
-                      <div class="col sm-6">
+                      <div class="col sm-6 mt-auto">
                       <dl class="choosfilecontainer">
                           <p>
-                              <input type="file" class="btn btn-outline-secondary choosebutton" name="files[]" multiple="true" autocomplete="off" required>
+                              <input type="file" class="form-control choosebutton" name="files[]" multiple="true" autocomplete="off" required>
                           </p>
                       </dl>
                       </div>

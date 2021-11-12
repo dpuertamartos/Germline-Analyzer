@@ -74,7 +74,7 @@ def index():
         #Create figure for the graph and plot it
         fig = Figure()
         axis = fig.add_subplot(1, 1, 1)
-        axis.set_title(strain.title())
+        axis.set_title(f'{strain.title()}   (n = {len(filenamelist)})')
         axis.errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
                                           elinewidth=0.7)
         # Convert plot to PNG image
@@ -85,7 +85,7 @@ def index():
         pngImageB64String = "data:image/png;base64,"
         pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
 
-        return render_template('index.html', image=pngImageB64String, files=filenamelist)
+        return render_template('index.html', image=pngImageB64String, files=filenamelist, strain_name=strain.title())
 
         # plt.title("MES-4::GFP", fontsize=12)
         # plt.gca().set_xlabel('Gonad length', fontsize=10)
