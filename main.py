@@ -109,7 +109,52 @@ def multiplestrains():
 
 @app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
 def multiplestrains_plot(strainnumber):
-    print(strainnumber)
+    if request.method == 'POST':
+        df_list=[]
+        strain_name_list=[]
+        file_namelist_list=[]
+        for n in range(strainnumber):
+            if f'files[]{n+1}' not in request.files:
+                flash(f'No files for strain {n+1} part')
+                return redirect(request.url)
+
+            files = request.files.getlist(f'files[]{n+1}')
+            strain = request.form.get(f'strainname{n+1}')
+            print(strain)
+
+            d = {}
+            filenamelist=[]
+            for file in files:
+                if not allowed_file(file.filename):
+                    flash('Please upload only .csv (excel) files')
+                    return redirect(request.url)
+                filename = secure_filename(file.filename)
+                filenamelist.append(filename)
+                d[filename] = getlist(file)
+            df = dataframe_proccess(d)
+
+            df_list.append(df)
+            strain_name_list.append(strain)
+            file_namelist_list.append(filenamelist)
+
+        #Create figure for the graph and plot it
+        fig = Figure()
+        axis = fig.add_subplot(1, 1, 1)
+        axis.set_title(f'Strains n = {len(strain_name_list)}')
+        # for strain in strain_name_list:
+        #     axis.suptitle(strain)
+        for df in df_list:
+            axis.errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
+                          elinewidth=0.7)
+        # Convert plot to PNG image
+        pngImage = io.BytesIO()
+        FigureCanvas(fig).print_png(pngImage)
+
+        # Encode PNG image to base64 string
+        pngImageB64String = "data:image/png;base64,"
+        pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
+        return render_template('multiplestrains_plot.html', lines=strainnumber, image_multiple=pngImageB64String, files=filenamelist, strain_name=strain.title())
+
     return render_template('multiplestrains_plot.html', lines=strainnumber)
 
 if __name__ == "__main__":
