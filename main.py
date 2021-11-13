@@ -140,12 +140,11 @@ def multiplestrains_plot(strainnumber):
         #Create figure for the graph and plot it
         fig = Figure()
         axis = fig.add_subplot(1, 1, 1)
-        axis.set_title(f'Strains n = {len(strain_name_list)}')
-        # for strain in strain_name_list:
-        #     axis.suptitle(strain)
-        for df in df_list:
-            axis.errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
+        # axis.set_title(f'Number of strains = {len(strain_name_list)}')
+        for i, df in enumerate(df_list):
+            axis.errorbar(df.index * 2, df.average, df.stddev, label=strain_name_list[i], linestyle=':', marker='^', capsize=3,
                           elinewidth=0.7)
+        axis.legend()
         # Convert plot to PNG image
         pngImage = io.BytesIO()
         FigureCanvas(fig).print_png(pngImage)
