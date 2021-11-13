@@ -102,58 +102,15 @@ def index():
 @app.route('/multiplestrains', methods=['GET', 'POST'])
 def multiplestrains():
     if request.method == 'POST':
-
-        if 'files[]' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-
-        files = request.files.getlist('files[]')
-        strain = request.form.get('strainname')
-
-        d = {}
-
-        #create dictionary with all the files
-        #flash error if files are not csv
-        filenamelist=[]
-        for file in files:
-            if not allowed_file(file.filename):
-                flash('Please upload only .csv (excel) files')
-                return redirect(request.url)
-            filename = secure_filename(file.filename)
-            filenamelist.append(filename)
-            d[filename] = getlist(file)
-
-        df = dataframe_proccess(d)
-
-        #Create figure for the graph and plot it
-        fig = Figure()
-        axis = fig.add_subplot(1, 1, 1)
-        axis.set_title(f'{strain.title()}   (n = {len(filenamelist)})')
-        axis.errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
-                                          elinewidth=0.7)
-        # Convert plot to PNG image
-        pngImage = io.BytesIO()
-        FigureCanvas(fig).print_png(pngImage)
-
-        # Encode PNG image to base64 string
-        pngImageB64String = "data:image/png;base64,"
-        pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
-
-        return render_template('multiplestrains.html', image=pngImageB64String, files=filenamelist, strain_name=strain.title())
-
-        # plt.title("MES-4::GFP", fontsize=12)
-        # plt.gca().set_xlabel('Gonad length', fontsize=10)
-        # plt.gca().set_ylabel('Fluorescence intensity', fontsize=10)
-
-        #save files if we want
-        # for file in files:
-        #     if file and allowed_file(file.filename):
-        #         filename = secure_filename(file.filename)
-        #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        n = int(request.form.get('strainsn'))
+        return redirect(url_for('multiplestrains_plot', strainnumber=n))
 
     return render_template('multiplestrains.html')
 
-
+@app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
+def multiplestrains_plot(strainnumber):
+    print(strainnumber)
+    return render_template('multiplestrains_plot.html', lines=strainnumber)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
