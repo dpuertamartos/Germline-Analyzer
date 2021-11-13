@@ -84,14 +84,15 @@
                         <span data-feather="plus-circle"></span>
                     </a>
                 </h6>
+                {% for strain_name in strain_name_list %}
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                     <span>{{ strain_name }}</span>
-                    {% if files %}
-                        <span>n = {{files|length}} </span>
+                    {% if files_list_list %}
+                        <span>n = {{files_list_list[loop.index-1]|length}} </span>
                     {% endif %}
                 </h6>
                 <ul class="nav flex-column mb-2">
-                    {% for file in files %}
+                    {% for file in files_list_list[loop.index-1] %}
                         <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <span data-feather="file-text"></span>
@@ -100,5 +101,6 @@
                         </li>
                     {% endfor %}
                 </ul>
+                {% endfor %}
             </div>
         </nav>

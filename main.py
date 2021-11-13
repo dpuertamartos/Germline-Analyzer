@@ -85,7 +85,7 @@ def index():
         pngImageB64String = "data:image/png;base64,"
         pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
 
-        return render_template('index.html', image=pngImageB64String, files=filenamelist, strain_name=strain.title())
+        return render_template('index.html', image=pngImageB64String, files_list_list=[filenamelist], strain_name_list=[strain.title()])
 
         # plt.title("MES-4::GFP", fontsize=12)
         # plt.gca().set_xlabel('Gonad length', fontsize=10)
@@ -152,7 +152,7 @@ def multiplestrains_plot(strainnumber):
         # Encode PNG image to base64 string
         pngImageB64String = "data:image/png;base64,"
         pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
-        return render_template('multiplestrains_plot.html', lines=strainnumber, image_multiple=pngImageB64String, files=filenamelist, strain_name=strain.title())
+        return render_template('multiplestrains_plot.html', lines=strainnumber, image_multiple=pngImageB64String, files_list_list=file_namelist_list, strain_name_list=strain_name_list)
 
     return render_template('multiplestrains_plot.html', lines=strainnumber)
 
