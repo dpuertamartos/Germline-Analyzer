@@ -119,7 +119,7 @@ def multiplestrains_plot(strainnumber):
                 return redirect(request.url)
 
             files = request.files.getlist(f'files[]{n+1}')
-            strain = request.form.get(f'strainname{n+1}').title()
+            strain = request.form.get(f'strainname{n+1}')
 
 
             d = {}
@@ -142,7 +142,7 @@ def multiplestrains_plot(strainnumber):
         axis = fig.add_subplot(1, 1, 1)
         # axis.set_title(f'Number of strains = {len(strain_name_list)}')
         for i, df in enumerate(df_list):
-            axis.errorbar(df.index * 2, df.average, df.stddev, label=strain_name_list[i], linestyle=':', marker='^', capsize=3,
+            axis.errorbar(df.index * 2, df.average, df.stddev, label=f'{strain_name_list[i]} n={len(file_namelist_list[i])}', linestyle=':', marker='^', capsize=3,
                           elinewidth=0.7)
         axis.legend()
         # Convert plot to PNG image
