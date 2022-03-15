@@ -5,6 +5,17 @@ def getlist(file):
     def stand_intensity(dataframe):
         dataframe.Gray_Value = dataframe.Gray_Value * 100 / dataframe.Gray_Value.max()
 
+    #function that standerize intensity with fold increase from minimum (average first 4% of gonad)
+
+    def fold_increase_standarize(list):
+        #if you want 6% take 3 points, 8% take 4...
+        minimun_average_of_first_4percent = (list[0]+list[1])/2
+        newlist = []
+        for i in range(len(list)):
+            newlist.append(list[i]/minimun_average_of_first_4percent)
+        return newlist
+
+
     #function that standarize lenght
     def stand_length(dataframe):
         dataframe["Distance_(pixels)"] = dataframe["Distance_(pixels)"] * 100 / dataframe["Distance_(pixels)"].max()
@@ -25,6 +36,7 @@ def getlist(file):
         elif int(df["Distance_(pixels)"].tolist()[i+1]) > int(df["Distance_(pixels)"].tolist()[i]) and int(df["Distance_(pixels)"].tolist()[i]) % 2 != 0:
             points_to_take.append(i)
 
+
     #divide the number of pixels between 50
     window50 = int(len(df.Gray_Value)/50)
     #create the rolling average taking the previous 2% of pixels
@@ -34,6 +46,9 @@ def getlist(file):
     #Create a 50 values list (gray value average each 2% of the germline)
     #For this it takes the rolling average value each (window50) pixels
     point_list_50 = [round(value,2) for x, value in enumerate(roll_df_list) if x in points_to_take]
+    #if you want to use fold increase respect 4% start of gonad(value can be changed in the function), apply
+    #fold-increase_standarize to the return and comment stand_intensity function
+    # # return fold_increase_standarize(point_list_50)
     return point_list_50
 
 def dataframe_proccess(dictionary):
