@@ -15,3 +15,16 @@ class TestSum2(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+    def standarizeFile(self):
+        if self.fold_increased:
+            raise Exception("already fold increased")
+        else:
+            self.standarized = True
+            m = max(self.point_list)
+            print("max", m)
+            self.point_list = [round(point * 100 / m, 2) for point in self.point_list]
+            plt.plot(self.point_list)
+            plt.show()
+            return self.point_list
