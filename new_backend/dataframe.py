@@ -97,7 +97,6 @@ class GermlineAnalyzer(object):
                 self.getlister.standarizeFile()
             elif self.getlister.fold_increased:
                 self.getlister.fold_increase_standarize()
-            self.getlister.plot()
             d[filename] = self.getlister.returnList()
 
         self.df = self.convertDictionaryToDf(d)
@@ -106,12 +105,14 @@ class GermlineAnalyzer(object):
 
 
 
-
+from grapher import plotGermline
 
 files = ["../Values/Values1.csv", "../Values/Values2.csv", "../Values/Values3.csv",
          "../Values/Values4.csv", "../Values/Values5.csv", "../Values/Values6.csv"]
-germline = GermlineAnalyzer(files,standarized=True,number_of_points=25)
-germline.process()
+germline = GermlineAnalyzer(files, standarized=True, number_of_points=55)
+plotGermline(germline.process())
+
+
 
 # getlister = GetList(number_of_points=25)
 # getlister.setFile("../Values/Values1.csv")
