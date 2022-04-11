@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from werkzeug.utils import secure_filename
 
 class GetList(object):
     def __init__(self, standarized=False, fold_increased=False, number_of_points=50, percentage_for_fold_increase=[0, 0.04]):
@@ -71,11 +72,46 @@ class GetList(object):
         self.point_list = point_list
 
     def returnList(self):
-        print(self.point_list)
         return self.point_list
 
 
+class GermlineAnalyzer(object):
+    def __init__(self, files, standarized=False, fold_increased=False, number_of_points=50, percentage_for_fold_increase=[0, 0.04]):
+        self.files = files
+        self.getlister = GetList(standarized=standarized,fold_increased=fold_increased,number_of_points=number_of_points,percentage_for_fold_increase=percentage_for_fold_increase)
+        self.df = None
 
+    def convertDictionaryToDf(self, d):
+        df = pd.DataFrame(d)
+        df["average"] = round(df.mean(axis=1), 2)
+        df["stddev"] = round(df.std(axis=1), 2)
+        return df
+
+    def process(self):
+        d = {}
+        for file in self.files:
+            filename = secure_filename(file)
+            self.getlister.setFile(file)
+            self.getlister.createListOfPoints()
+            if self.getlister.standarized:
+                self.getlister.standarizeFile()
+            elif self.getlister.fold_increased:
+                self.getlister.fold_increase_standarize()
+            self.getlister.plot()
+            d[filename] = self.getlister.returnList()
+
+        self.df = self.convertDictionaryToDf(d)
+        print(self.df)
+        return self.df
+
+
+
+
+
+files = ["../Values/Values1.csv", "../Values/Values2.csv", "../Values/Values3.csv",
+         "../Values/Values4.csv", "../Values/Values5.csv", "../Values/Values6.csv"]
+germline = GermlineAnalyzer(files,standarized=True,number_of_points=25)
+germline.process()
 
 # getlister = GetList(number_of_points=25)
 # getlister.setFile("../Values/Values1.csv")
