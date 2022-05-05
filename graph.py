@@ -48,7 +48,7 @@ def getlist(file):
     point_list_50 = [round(value,2) for x, value in enumerate(roll_df_list) if x in points_to_take]
     #if you want to use fold increase respect 4% start of gonad(value can be changed in the function), apply
     #fold-increase_standarize to the return and comment stand_intensity function
-    # # return fold_increase_standarize(point_list_50)
+    #return fold_increase_standarize(point_list_50)
     return point_list_50
 
 def dataframe_proccess(dictionary):
