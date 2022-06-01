@@ -14,6 +14,7 @@ class GetList(object):
 
     def setFile(self, file):
         self.file = pd.read_csv(file)
+        print(self.file)
 
     def plot(self):
         plt.plot(self.point_list)
@@ -88,9 +89,10 @@ class GermlineAnalyzer(object):
         return df
 
     def process(self):
+        print("processing")
         d = {}
         for file in self.files:
-            filename = secure_filename(file)
+            filename = secure_filename(file.filename)
             self.getlister.setFile(file)
             self.getlister.createListOfPoints()
             if self.getlister.standarized:
@@ -105,17 +107,17 @@ class GermlineAnalyzer(object):
 
 
 
-from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
-
-files = ["../Values/Values1.csv", "../Values/Values2.csv", "../Values/Values3.csv",
-         "../Values/Values4.csv", "../Values/Values5.csv", "../Values/Values6.csv"]
-germline = GermlineAnalyzer(files, standarized=False, number_of_points=33, percentage_for_fold_increase=[0.00,0.04])
-germline2 = GermlineAnalyzer(files[0:3], standarized=False, number_of_points=33, percentage_for_fold_increase=[0.00,0.04])
-fig = plotGermline([germline.process(), germline2.process()], title="PRUEBA",
-             strain_name_list=["MES-4", "MES-4 falso"],
-             file_namelist_list=[files, files[0:3]])
-png = convert_plot_to_png(fig)
-encode_png_to_base64(png)
+# from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
+#
+# files = ["../Values/Values1.csv", "../Values/Values2.csv", "../Values/Values3.csv",
+#          "../Values/Values4.csv", "../Values/Values5.csv", "../Values/Values6.csv"]
+# germline = GermlineAnalyzer(files, standarized=False, number_of_points=33, percentage_for_fold_increase=[0.00, 0.04])
+# germline2 = GermlineAnalyzer(files[0:3], standarized=False, number_of_points=33, percentage_for_fold_increase=[0.00, 0.04])
+# fig = plotGermline([germline.process(), germline2.process()], title="PRUEBA",
+#              strain_name_list=["MES-4", "MES-4 falso"],
+#              file_namelist_list=[files, files[0:3]])
+# png = convert_plot_to_png(fig)
+# encode_png_to_base64(png)
 
 
 

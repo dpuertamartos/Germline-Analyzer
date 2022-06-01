@@ -77,6 +77,7 @@ def index():
         axis.set_title(f'{strain}   (n = {len(filenamelist)})')
         axis.errorbar(df.index * 2, df.average, df.stddev, linestyle=':', marker='^', capsize=3,
                                           elinewidth=0.7)
+        axis.set_ylim([0, 100])
         # Convert plot to PNG image
         pngImage = io.BytesIO()
         FigureCanvas(fig).print_png(pngImage)
@@ -146,7 +147,7 @@ def multiplestrains_plot(strainnumber):
                           elinewidth=0.7)
         axis.legend()
         # # If you want to set y lim axis [0,100] for standard intensity [0,255] non standard intensity
-        # axis.set_ylim([0, 100])
+        axis.set_ylim([0, 100])
         # Convert plot to PNG image
         pngImage = io.BytesIO()
         FigureCanvas(fig).print_png(pngImage)

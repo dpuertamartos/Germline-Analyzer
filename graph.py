@@ -23,7 +23,7 @@ def getlist(file):
 
     df = pd.read_csv(file)
     # Comment this if you dont want standardised intensity
-    # stand_intensity(df)
+    stand_intensity(df)
     stand_length(df)
 
     #Create the points to take list. Points selected are the ones closer to the 2% step change. For example 1.98% if next one is 2.01%.
