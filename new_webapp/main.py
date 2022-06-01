@@ -22,6 +22,11 @@ def index():
 
         files = request.files.getlist('files[]')
         strain = request.form.get('strainname').title()
+        points = request.form.get("number_of_points")
+        option = request.form.getlist('flexRadioDefault')
+        std = option[0] == "std"
+        fld = option[0] == "fold"
+
 
         #flash error if files are not csv
 
@@ -30,7 +35,8 @@ def index():
                 flash('Please upload only .csv (excel) files')
                 return redirect(request.url)
 
-        germline = GermlineAnalyzer(files, standarized=False, number_of_points=33)
+        germline = GermlineAnalyzer(files, standarized=std, fold_increased=fld, number_of_points=int(points),
+                                    percentage_for_fold_increase=[0, 0.04])
         fig = plotGermline([germline.process()], title="PRUEBA",
                            strain_name_list=[strain],
                            file_namelist_list=[files])
@@ -52,6 +58,10 @@ def multiplestrains():
 @app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
 def multiplestrains_plot(strainnumber):
     if request.method == 'POST':
+        #TODO: Receive number of points
+        #TODO 2: Receive if standarized, absolute or fold_increase
+        #TODO 3: Receive mitotic graphic
+        #TODO 4: Reorganize imports , .env, .gitignore and all
         df_list=[]
         strain_name_list=[]
         file_namelist_list=[]
