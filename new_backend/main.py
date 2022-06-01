@@ -24,24 +24,11 @@ import random
 from dataframe import GermlineAnalyzer
 from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
 
-# Get current path
-path = os.getcwd()
-# file Upload
-UPLOAD_FOLDER = os.path.join(path, 'uploads')
-
-# Make directory if uploads is not exists
-if not os.path.isdir(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
-
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv'])
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-# Bootstrap(app)
-
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -59,15 +46,12 @@ def index():
         strain = request.form.get('strainname').title()
 
         #flash error if files are not csv
-        filenamelist=[]
+
         for file in files:
             if not allowed_file(file.filename):
                 flash('Please upload only .csv (excel) files')
                 return redirect(request.url)
-            filename = secure_filename(file.filename)
-            filenamelist.append(filename)
-        print(filenamelist)
-        print(files)
+
         germline = GermlineAnalyzer(files, standarized=False, number_of_points=33)
         fig = plotGermline([germline.process()], title="PRUEBA",
                            strain_name_list=[strain],
@@ -75,17 +59,7 @@ def index():
         png = convert_plot_to_png(fig)
         b64 = encode_png_to_base64(png)
 
-        return render_template('index.html', image=b64, files_list_list=[filenamelist], strain_name_list=[strain])
-
-        # plt.title("MES-4::GFP", fontsize=12)
-        # plt.gca().set_xlabel('Gonad length', fontsize=10)
-        # plt.gca().set_ylabel('Fluorescence intensity', fontsize=10)
-
-        #save files if we want
-        # for file in files:
-        #     if file and allowed_file(file.filename):
-        #         filename = secure_filename(file.filename)
-        #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return render_template('index.html', image=b64, files_list_list=[germline.return_filenames()], strain_name_list=[strain])
 
     return render_template('index.html')
 

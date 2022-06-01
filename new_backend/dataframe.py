@@ -81,6 +81,7 @@ class GermlineAnalyzer(object):
         self.files = files
         self.getlister = GetList(standarized=standarized,fold_increased=fold_increased,number_of_points=number_of_points,percentage_for_fold_increase=percentage_for_fold_increase)
         self.df = None
+        self.filenames = None
 
     def convertDictionaryToDf(self, d):
         df = pd.DataFrame(d)
@@ -88,9 +89,13 @@ class GermlineAnalyzer(object):
         df["stddev"] = round(df.std(axis=1), 2)
         return df
 
+    def return_filenames(self):
+        return self.filenames
+
     def process(self):
         print("processing")
         d = {}
+        filenames = []
         for file in self.files:
             filename = secure_filename(file.filename)
             self.getlister.setFile(file)
@@ -100,9 +105,12 @@ class GermlineAnalyzer(object):
             elif self.getlister.fold_increased:
                 self.getlister.fold_increase_standarize()
             d[filename] = self.getlister.returnList()
+            filenames.append(filename)
 
         self.df = self.convertDictionaryToDf(d)
+        self.filenames = filenames
         print(self.df)
+        print(self.filenames)
         return self.df
 
 
