@@ -63,64 +63,52 @@ def index():
 
     return render_template('index.html')
 
-# @app.route('/multiplestrains', methods=['GET', 'POST'])
-# def multiplestrains():
-#     if request.method == 'POST':
-#         n = int(request.form.get('strainsn'))
-#         return redirect(url_for('multiplestrains_plot', strainnumber=n))
-#
-#     return render_template('multiplestrains.html')
-#
-# @app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
-# def multiplestrains_plot(strainnumber):
-#     if request.method == 'POST':
-#         df_list=[]
-#         strain_name_list=[]
-#         file_namelist_list=[]
-#         for n in range(strainnumber):
-#             if f'files[]{n+1}' not in request.files:
-#                 flash(f'No files for strain {n+1} part')
-#                 return redirect(request.url)
-#
-#             files = request.files.getlist(f'files[]{n+1}')
-#             strain = request.form.get(f'strainname{n+1}')
-#
-#
-#             d = {}
-#             filenamelist=[]
-#             for file in files:
-#                 if not allowed_file(file.filename):
-#                     flash('Please upload only .csv (excel) files')
-#                     return redirect(request.url)
-#                 filename = secure_filename(file.filename)
-#                 filenamelist.append(filename)
-#                 d[filename] = getlist(file)
-#             df = dataframe_proccess(d)
-#
-#             df_list.append(df)
-#             strain_name_list.append(strain)
-#             file_namelist_list.append(filenamelist)
-#
-#         #Create figure for the graph and plot it
-#         fig = Figure()
-#         axis = fig.add_subplot(1, 1, 1)
-#         # axis.set_title(f'Number of strains = {len(strain_name_list)}')
-#         for i, df in enumerate(df_list):
-#             axis.errorbar(df.index * 2, df.average, df.stddev, label=f'{strain_name_list[i]} n={len(file_namelist_list[i])}', linestyle=':', marker='^', capsize=3,
-#                           elinewidth=0.7)
-#         axis.legend()
-#         # # If you want to set y lim axis [0,100] for standard intensity [0,255] non standard intensity
-#         axis.set_ylim([0, 100])
-#         # Convert plot to PNG image
-#         pngImage = io.BytesIO()
-#         FigureCanvas(fig).print_png(pngImage)
-#
-#         # Encode PNG image to base64 string
-#         pngImageB64String = "data:image/png;base64,"
-#         pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
-#         return render_template('multiplestrains_plot.html', lines=strainnumber, image_multiple=pngImageB64String, files_list_list=file_namelist_list, strain_name_list=strain_name_list)
-#
-#     return render_template('multiplestrains_plot.html', lines=strainnumber)
+@app.route('/multiplestrains', methods=['GET', 'POST'])
+def multiplestrains():
+    if request.method == 'POST':
+        n = int(request.form.get('strainsn'))
+        return redirect(url_for('multiplestrains_plot', strainnumber=n))
+
+    return render_template('multiplestrains.html')
+
+@app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
+def multiplestrains_plot(strainnumber):
+    if request.method == 'POST':
+        df_list=[]
+        strain_name_list=[]
+        file_namelist_list=[]
+        for n in range(strainnumber):
+            if f'files[]{n+1}' not in request.files:
+                flash(f'No files for strain {n+1} part')
+                return redirect(request.url)
+
+            files = request.files.getlist(f'files[]{n+1}')
+            strain = request.form.get(f'strainname{n+1}')
+
+            for file in files:
+                if not allowed_file(file.filename):
+                    flash('Please upload only .csv (excel) files')
+                    return redirect(request.url)
+
+            germline = GermlineAnalyzer(files, standarized=False, number_of_points=33)
+            df = germline.process()
+            filenamelist = germline.return_filenames()
+
+            df_list.append(df)
+            strain_name_list.append(strain)
+            file_namelist_list.append(filenamelist)
+
+        #Create figure for the graph and plot it
+        print(strain_name_list,file_namelist_list)
+        fig = plotGermline(df_list, title="PRUEBA",
+                           strain_name_list=strain_name_list,
+                           file_namelist_list=file_namelist_list)
+        png = convert_plot_to_png(fig)
+        b64 = encode_png_to_base64(png)
+
+        return render_template('multiplestrains_plot.html', lines=strainnumber, image_multiple=b64, files_list_list=file_namelist_list, strain_name_list=strain_name_list)
+
+    return render_template('multiplestrains_plot.html', lines=strainnumber)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

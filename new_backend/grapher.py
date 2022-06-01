@@ -10,9 +10,12 @@ standard_colors = [[0, 0.4470, 0.7410],[0.8500, 0.3250, 0.0980],[0.9290, 0.6940,
 
 def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_namelist_list=["None"]):
     v = 100 / len(df[0].average)
+
     fig, axis = plt.subplots(2,constrained_layout = True, gridspec_kw={'height_ratios': [2, 20]})
     # axis[1].set_title(f'{title}')
+
     for i, df in enumerate(df):
+        print(df.index, v, "df.index*v",df.index*v)
         axis[1].errorbar(df.index * v, df.average, df.stddev,
                       label=f'{strain_name_list[i]} n={len(file_namelist_list[i])}', linestyle=':', marker='^',
                       capsize=3,
