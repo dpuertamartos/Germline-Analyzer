@@ -22,61 +22,79 @@
         </div>
       </div>
       <div class="row justify-content-center">
-          <div class="col-8">
+          <div class="col-7">
             <img class="img-fluid graph-img" src="{{ image }}" alt="Not Found" onerror=this.src="../static/images/line-graph.png">
           </div>
-          <div class="col-4">
+          <div class="col-5 align-self-center mx-auto">
               <form method="post" action="/#plotsingle" enctype="multipart/form-data">
                   <div class="row">
-                  <div class="col-sm-6">
-                  <dl class="choosfilecontainer">
-                      <p>
-                          <input type="file" class="form-control choosebutton" name="files[]" multiple="true" autocomplete="off" required>
+                      <div class="col-sm-5">
+                      <dl class="choosfilecontainer">
+                          <p>
+                              <input type="file" class="form-control choosebutton" name="files[]" multiple="true" autocomplete="off" required>
+                          </p>
+                      </dl>
+                      </div>
+                      <div class="col-sm-7">
+                      <input type="text" name="strainname" value="Introduce strain name" class="input-group-text choosebutton">
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-sm-5">
+                          <label for="customRange3" class="form-label fTitle">Number of points</label>
+                      </div>
+                      <div class="col-sm-7">
+                         <input type="text" id="textInput" value="50">
+                      </div>
+                  </div>
+                  <div class="row">
+                      <input type="range" name="number_of_points" class="form-range slid" value="50" min="2" max="100" step="2" id="customRange3" onchange="updateTextInput(this.value);">
+                  </div>
+                  <div class="row">
+                      <label for="flexRadioDefault1" class="fTitle">Fluorescence intensity display</label>
+                  </div>
+                  <div class="row">
+                      <div class="form-check">
+                          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="abs" checked>
+                          <label class="form-check-label" for="flexRadioDefault1">
+                            Absolute value (0-255)
+                          </label>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="form-check">
+                          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" value="std">
+                          <label class="form-check-label" for="flexRadioDefault2">
+                            Standarize value against max (0-100)
+                          </label>
+                      </div>
+                  </div>
+                  <div class="row">
+
+                      <div class="form-check">
+                          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" value="fold">
+                          <label class="form-check-label" for="flexRadioDefault3">
+                            Fold increase
+                          </label>
+                      </div>
+                  </div>
+
+                  <div class="row">
+                      <label for="rslide" class="form-label fTitle">Range of gonad to compare against (only for fold increase)</label>
+                      <section class="range-slider slid" id="rslide">
+                          <span class="rangeValues"></span>
+                          <input value="0" min="0" max="100" step="2" type="range">
+                          <input value="4" min="0" max="100" step="2" type="range">
+                      </section>
+                  </div>
+                  <div class="row justify-content-center">
+                      <div class="col-sm-4">
+                      <p class="submitbuttoncontainer">
+                          <input type="submit" class="btn btn-primary submitbutton" value="Submit">
                       </p>
-                  </dl>
-                  </div>
-                  <div class="col-sm-4">
-                  <input type="text" name="strainname" value="Introduce strain name" class="input-group-text choosebutton">
-                  </div>
-                  <label for="customRange3" class="form-label">Number of points</label>
-                     <input type="range" name="number_of_points" class="form-range" value="50" min="5" max="95" step="1" id="customRange3" onchange="updateTextInput(this.value);">
-                     <input type="text" id="textInput" value="50">
-                  <div class="form-check">
-                      <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="abs" checked>
-                      <label class="form-check-label" for="flexRadioDefault1">
-                        Absolute value (0-255)
-                      </label>
-                  </div>
-                  <div class="form-check">
-                      <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" value="std">
-                      <label class="form-check-label" for="flexRadioDefault2">
-                        Standarize value against max (0-100)
-                      </label>
-                  </div>
-                  <div class="form-check">
-                      <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" value="fold">
-                      <label class="form-check-label" for="flexRadioDefault3">
-                        Fold increase
-                      </label>
-                  </div>
-                  <label for="customStart" class="form-label">Fold increase comparer. Start of comparison</label>
-                     <input type="range" name="start_fold" class="form-range" value="0" min="0" max="98" step="2" id="customStart" onchange="updateTextInput2(this.value);">
-                     <input type="text" id="textInput22" value="0">
-                  <label for="customEnd" class="form-label">Fold increase comparer. End of comparison</label>
-                     <input type="range" name="start_fold" class="form-range" value="4" min="0" max="100" step="2" id="customEnd" onchange="updateTextInput3(this.value);">
-                     <input type="text" id="textInput23" value="4">
-                  <div>
-                  <div class="col-sm-2">
-                  <p class="submitbuttoncontainer">
-                      <input type="submit" class="btn btn-primary submitbutton" value="Submit">
-                  </p>
-                  </div>
+                      </div>
                   </div>
               </form>
-
-
-
-              I'm board
           </div>
       </div>
 {% include "footer.html" %}

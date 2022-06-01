@@ -15,7 +15,10 @@ def allowed_file(filename):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-
+        #TODO 5: MAKE IT RECEIVE FOLD INCREASE RANGE
+        #TODO 6: MAKE IT SAVE CONFIGURATION THAT YOU SEND
+        #TODO 7: MAKE IT SAVE FILES THAT YOU SEND (SO YOU CAN CHANGE CONFIGURATION ON THEM)
+        #TODO 8: MAKE IT SWITCH MODE MITOTIC ZONE GRAPH
         if 'files[]' not in request.files:
             flash('No file part')
             return redirect(request.url)
@@ -78,7 +81,7 @@ def multiplestrains_plot(strainnumber):
                     flash('Please upload only .csv (excel) files')
                     return redirect(request.url)
 
-            germline = GermlineAnalyzer(files, standarized=False, number_of_points=33)
+            germline = GermlineAnalyzer(files, standarized=True, number_of_points=50)
             df = germline.process()
             filenamelist = germline.return_filenames()
 
