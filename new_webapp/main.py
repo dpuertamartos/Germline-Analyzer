@@ -15,7 +15,7 @@ def allowed_file(filename):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        #TODO 5: MAKE IT RECEIVE FOLD INCREASE RANGE
+        #TODO 5: MAKE IT RECEIVE FOLD INCREASE RANGE->GERMLINE ANALYZER RECEIVES IT
         #TODO 6: MAKE IT SAVE CONFIGURATION THAT YOU SEND
         #TODO 7: MAKE IT SAVE FILES THAT YOU SEND (SO YOU CAN CHANGE CONFIGURATION ON THEM)
         #TODO 8: MAKE IT SWITCH MODE MITOTIC ZONE GRAPH
@@ -29,6 +29,8 @@ def index():
         option = request.form.getlist('flexRadioDefault')
         std = option[0] == "std"
         fld = option[0] == "fold"
+        per_fld = request.form.get("rslideValues")
+        print("per_fld",per_fld)
 
 
         #flash error if files are not csv
@@ -61,8 +63,7 @@ def multiplestrains():
 @app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
 def multiplestrains_plot(strainnumber):
     if request.method == 'POST':
-        #TODO: Receive number of points
-        #TODO 2: Receive if standarized, absolute or fold_increase
+        #TODO: Copy configuration of single plot to multipleplot
         #TODO 3: Receive mitotic graphic
         #TODO 4: Reorganize imports , .env, .gitignore and all
         df_list=[]
