@@ -1,26 +1,4 @@
-import base64
-from flask import Flask, g, render_template, redirect, url_for, flash, request, Response
-from flask_bootstrap import Bootstrap
-from flask_ckeditor import CKEditor
-from datetime import date
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship
-from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from flask_gravatar import Gravatar
-from functools import wraps
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, URL, email
-from werkzeug.utils import secure_filename
-from graph import getlist, dataframe_proccess
-import os
-import pandas as pd
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-import io
-import matplotlib.pyplot as plt
-import random
+from flask import Flask, render_template, redirect, url_for, flash, request
 from dataframe import GermlineAnalyzer
 from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
 
