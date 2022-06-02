@@ -23,6 +23,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 cache = None
+strain_cache = None
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -31,7 +32,7 @@ def index():
         #TODO 7: IMPROVE CACHE FUNCTIONALITY, FIRST YOU UPLOAD FILES, THEY GET STORED, THEN YOU PLAY WITH DATA
         #TODO 8: MAKE IT SWITCH MODE MITOTIC ZONE GRAPH
 
-        global cache
+        global cache, strain_cache
 
         if 'files[]' not in request.files:
 
@@ -69,11 +70,13 @@ def index():
 
         if use_cache:
             dictionary_of_dataframes = cache
+            strain = strain_cache
         else:
             dictionary_of_dataframes = files_to_dictionary(files)
 
-        if cache is None:
-            cache = dictionary_of_dataframes
+
+        cache = dictionary_of_dataframes
+        strain_cache = strain
 
         print("dict---------",dictionary_of_dataframes,"cache--------",cache)
         print("LONGITUD FILES", len(files))
@@ -83,7 +86,7 @@ def index():
 
         fig = plotGermline([germline.process()], title="PRUEBA",
                            strain_name_list=[strain],
-                           file_namelist_list=[files])
+                           file_namelist_list=[germline.return_filenames()])
         png = convert_plot_to_png(fig)
         b64 = encode_png_to_base64(png)
 
