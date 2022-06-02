@@ -15,7 +15,6 @@ def allowed_file(filename):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        #TODO 5: MAKE IT RECEIVE FOLD INCREASE RANGE->GERMLINE ANALYZER RECEIVES IT
         #TODO 6: MAKE IT SAVE CONFIGURATION THAT YOU SEND
         #TODO 7: MAKE IT SAVE FILES THAT YOU SEND (SO YOU CAN CHANGE CONFIGURATION ON THEM)
         #TODO 8: MAKE IT SWITCH MODE MITOTIC ZONE GRAPH
@@ -30,8 +29,15 @@ def index():
         std = option[0] == "std"
         fld = option[0] == "fold"
         per_fld = request.form.get("rslideValues")
-        print("per_fld",per_fld)
+        range_start = per_fld.split(" - ")[0]
+        range_end = per_fld.split(" - ")[1]
+        range_array = [int(range_start)/100,int(range_end)/100]
+        print("per_fld",per_fld,range_start,range_end,range_array)
 
+        #flash error if range for fold increase is not enough for 1 point
+        if int(int(points) * (range_array[1]-range_array[0])) == 0:
+            flash('Range for fold increase comparison too small. Select larger range or more number of points. Number of points * Range must be > 100')
+            return redirect(request.url)
 
         #flash error if files are not csv
 
@@ -41,7 +47,7 @@ def index():
                 return redirect(request.url)
 
         germline = GermlineAnalyzer(files, standarized=std, fold_increased=fld, number_of_points=int(points),
-                                    percentage_for_fold_increase=[0, 0.04])
+                                    percentage_for_fold_increase=range_array)
         fig = plotGermline([germline.process()], title="PRUEBA",
                            strain_name_list=[strain],
                            file_namelist_list=[files])

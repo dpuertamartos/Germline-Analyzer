@@ -36,8 +36,10 @@ class GetList(object):
         else:
             self.fold_increased = True
             points = self.point_list
+            print(self.percentage_for_fold_increase, self.number_of_points)
             start = int(self.percentage_for_fold_increase[0] * self.number_of_points)
             end = int(self.percentage_for_fold_increase[1] * self.number_of_points)
+            print(start,end)
             minimum_average = 0
             p = 0
             for i in range(start, end):
