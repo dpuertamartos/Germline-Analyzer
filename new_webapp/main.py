@@ -167,8 +167,6 @@ def plot(strains):
     print("retrieving session", strain_name_list,files_list_list,session["files_list_list"],dataframes)
 
     if request.method == 'POST':
-        # TODO 6: MAKE IT SAVE CONFIGURATION THAT YOU SEND
-        # TODO 7: IMPROVE CACHE FUNCTIONALITY, FIRST YOU UPLOAD FILES, THEY GET STORED, THEN YOU PLAY WITH DATA
         # TODO 8: MAKE IT SWITCH MODE MITOTIC ZONE GRAPH
 
         points = request.form.get("number_of_points")
@@ -202,9 +200,11 @@ def plot(strains):
         b64 = encode_png_to_base64(png)
 
         return render_template('plot.html', strains=strains, image=b64, files_list_list=files_list_list,
-                               strain_name_list=strain_name_list)
+                               strain_name_list=strain_name_list, npoints=int(points), range_fold=per_fld,
+                               range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld)
 
-    return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list)
+    return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
+                           npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

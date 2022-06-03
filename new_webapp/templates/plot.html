@@ -32,18 +32,22 @@
                           <label for="customRange3" class="form-label fTitle">Number of points</label>
                       </div>
                       <div class="col-sm-7">
-                         <input type="text" id="textInput" value="50">
+                         <input type="text" id="textInput" value={{npoints}}>
                       </div>
                   </div>
                   <div class="row">
-                      <input type="range" name="number_of_points" class="form-range slid" value="50" min="2" max="100" step="2" id="customRange3" onchange="updateTextInput(this.value);">
+                      <input type="range" name="number_of_points" class="form-range slid" value={{npoints}} min="2" max="100" step="2" id="customRange3" onchange="updateTextInput(this.value);">
                   </div>
                   <div class="row">
                       <label for="flexRadioDefault1" class="fTitle">Fluorescence intensity display</label>
                   </div>
                   <div class="row">
                       <div class="form-check">
+                          {% if not std and not fld %}
                           <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="abs" checked>
+                          {% else %}
+                          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="abs">
+                          {% endif %}
                           <label class="form-check-label" for="flexRadioDefault1">
                             Absolute value (0-255)
                           </label>
@@ -51,7 +55,11 @@
                   </div>
                   <div class="row">
                       <div class="form-check">
+                          {% if std %}
+                          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" value="std" checked>
+                          {% else %}
                           <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" value="std">
+                          {% endif %}
                           <label class="form-check-label" for="flexRadioDefault2">
                             Standarize value against max (0-100)
                           </label>
@@ -60,7 +68,11 @@
                   <div class="row">
 
                       <div class="form-check">
+                          {% if fld %}
+                          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" value="fold" checked>
+                          {% else %}
                           <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" value="fold">
+                          {% endif %}
                           <label class="form-check-label" for="flexRadioDefault3">
                             Fold increase
                           </label>
@@ -69,10 +81,10 @@
 
                   <div class="row">
                       <label for="rslide" class="form-label fTitle">Range of gonad to compare against (only for fold increase)</label>
-                      <input class="rangeValues" name="rslideValues" value="0-4">
+                      <input class="rangeValues" name="rslideValues" value={{range_fold}}>
                       <section class="range-slider slid" id="rslide">
-                          <input value="0" min="0" max="100" step="2" type="range">
-                          <input value="4" min="0" max="100" step="2" type="range">
+                          <input value={{range_fold_1}} min="0" max="100" step="2" type="range">
+                          <input value={{range_fold_2}} min="0" max="100" step="2" type="range">
                       </section>
                   </div>
                   <div class="row justify-content-center">
