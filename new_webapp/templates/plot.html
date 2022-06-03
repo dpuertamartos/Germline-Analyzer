@@ -26,7 +26,7 @@
             <img class="img-fluid graph-img" src="{{ image }}" alt="Not Found" onerror=this.src="../static/images/line-graph.png">
           </div>
           <div class="col-5 align-self-center mx-auto">
-              <form method="post" action="/#plot" enctype="multipart/form-data">
+              <form method="post" action="{{ url_for('plot', strains=strains) }}" enctype="multipart/form-data">
                   <div class="row">
                       <div class="col-sm-5">
                           <label for="customRange3" class="form-label fTitle">Number of points</label>

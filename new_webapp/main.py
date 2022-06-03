@@ -29,10 +29,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
-cache = None
-strain_cache = None
-
+cache = []
 
 # @app.route('/plot', methods=['GET', 'POST'])
 # def plot():
@@ -120,10 +117,13 @@ def index():
 
 @app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
 def multiplestrains_plot(strainnumber):
+    global cache
     if request.method == 'POST':
-        # TODO: Copy configuration of single plot to multipleplot
+        # TODO: Store dataframes in database then retrieve them for each plot configuration
         # TODO 3: Receive mitotic graphic
         # TODO 4: Reorganize imports , .env, .gitignore and all
+        # TODO OPTIONAL: Organize dataframes stored per user
+
         df_list = []
         strain_name_list = []
         file_namelist_list = []
@@ -148,7 +148,8 @@ def multiplestrains_plot(strainnumber):
             strain_name_list.append(strain)
             file_namelist_list.append(filenamelist)
 
-        session["dataframe"]=df_list
+        #this need to be stored in database because is too big
+        cache = df_list
         session["files_list_list"]=file_namelist_list
         session["strain_name_list"]=strain_name_list
         print(session)
@@ -158,10 +159,12 @@ def multiplestrains_plot(strainnumber):
 
 @app.route('/plot/<int:strains>', methods=['GET', 'POST'])
 def plot(strains):
-    d = session.get("dataframe")
+
+    #this need to be retrieved from database because is too big
+    dataframes = cache
     strain_name_list = session.get("strain_name_list")
     files_list_list = session.get("files_list_list")
-    print("retrieving session", strain_name_list,files_list_list,session["files_list_list"],d)
+    print("retrieving session", strain_name_list,files_list_list,session["files_list_list"],dataframes)
 
     if request.method == 'POST':
         # TODO 6: MAKE IT SAVE CONFIGURATION THAT YOU SEND
@@ -198,10 +201,10 @@ def plot(strains):
         png = convert_plot_to_png(fig)
         b64 = encode_png_to_base64(png)
 
-        return render_template('plot.html', image=b64, files_list_list=files_list_list,
+        return render_template('plot.html', strains=strains, image=b64, files_list_list=files_list_list,
                                strain_name_list=strain_name_list)
 
-    return render_template('plot.html', files_list_list=files_list_list,strain_name_list=strain_name_list)
+    return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

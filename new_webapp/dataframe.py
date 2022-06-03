@@ -10,8 +10,7 @@ def files_to_dictionary(files):
         filename = secure_filename(file.filename)
         print("filename",filename)
         df = pd.read_csv(file)
-        result = df.to_json(orient="index")
-        d[filename] = result
+        d[filename] = df
     return d
 
 class GetList(object):
