@@ -86,7 +86,7 @@ def index():
         pngImageB64String = "data:image/png;base64,"
         pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
 
-        return render_template('index.html', image=pngImageB64String, files_list_list=[filenamelist], strain_name_list=[strain])
+        return render_template('plot.html', image=pngImageB64String, files_list_list=[filenamelist], strain_name_list=[strain])
 
         # plt.title("MES-4::GFP", fontsize=12)
         # plt.gca().set_xlabel('Gonad length', fontsize=10)
@@ -98,7 +98,7 @@ def index():
         #         filename = secure_filename(file.filename)
         #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-    return render_template('index.html')
+    return render_template('plot.html')
 
 @app.route('/multiplestrains', methods=['GET', 'POST'])
 def multiplestrains():
@@ -106,7 +106,7 @@ def multiplestrains():
         n = int(request.form.get('strainsn'))
         return redirect(url_for('multiplestrains_plot', strainnumber=n))
 
-    return render_template('multiplestrains.html')
+    return render_template('index.html')
 
 @app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
 def multiplestrains_plot(strainnumber):

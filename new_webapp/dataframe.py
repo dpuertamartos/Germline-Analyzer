@@ -9,7 +9,8 @@ def files_to_dictionary(files):
     for file in files:
         filename = secure_filename(file.filename)
         print("filename",filename)
-        d[filename] = pd.read_csv(file)
+        df = pd.read_csv(file)
+        d[filename] = df
     return d
 
 class GetList(object):
