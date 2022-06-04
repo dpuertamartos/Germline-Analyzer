@@ -43,7 +43,7 @@ def multiplestrains_plot(strainnumber):
     if request.method == 'POST':
         # TODO: Store dataframes in database then retrieve them for each plot configuration
         # TODO 2: Improve mitotic graph selection files (only let upload 1 file per strain, save name of strain for mitotic file upload, and don't let user change it)
-        # TODO 3: Grapher Receive mitotic graphic information and turn mode mitotic graph on/off
+        # TODO 3: Improve grapher options
         # TODO 4: Reorganize imports , .env, .gitignore and all
         # TODO 5: Fix all redirects
         # TODO OPTIONAL: Organize dataframes stored per user
@@ -151,7 +151,8 @@ def plot(strains):
 
         fig = plotGermline(list_of_dataframes_processed, title="PRUEBA",
                            strain_name_list=strain_name_list,
-                           file_namelist_list=files_list_list)
+                           file_namelist_list=files_list_list,
+                           mitotic_mode=mitotic_switched_on, strains_mitotic_percentage=mitotic_graph_info)
         png = convert_plot_to_png(fig)
         b64 = encode_png_to_base64(png)
 
