@@ -3,6 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from werkzeug.utils import secure_filename
 
+def read_mitotic_file_into_average(file):
+    df = pd.read_csv(file, header=None)
+    a = df[0].to_numpy()
+    return str(round(sum(a)/len(a),2))
 
 def files_to_dictionary(files):
     d = {}
@@ -122,7 +126,8 @@ class GermlineAnalyzer(object):
         print("filenames", self.filenames)
         return self.df
 
-
+file = "./Values/Libro1.csv"
+print(read_mitotic_file_into_average(file))
 
 # from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
 #

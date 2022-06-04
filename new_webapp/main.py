@@ -1,6 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, session
-from dataframe import GermlineAnalyzer, files_to_dictionary
+from flask import Flask, render_template, redirect, url_for, flash, request, session, jsonify
+from dataframe import GermlineAnalyzer, files_to_dictionary, read_mitotic_file_into_average
 from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
+import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 
@@ -41,10 +42,13 @@ def multiplestrains_plot(strainnumber):
     global cache
     if request.method == 'POST':
         # TODO: Store dataframes in database then retrieve them for each plot configuration
-        # TODO 3: Receive mitotic graphic
+        # TODO 2: Improve mitotic graph selection files (only let upload 1 file per strain, save name of strain for mitotic file upload, and don't let user change it)
+        # TODO 3: Grapher Receive mitotic graphic information and turn mode mitotic graph on/off
         # TODO 4: Reorganize imports , .env, .gitignore and all
+        # TODO 5: Fix all redirects
         # TODO OPTIONAL: Organize dataframes stored per user
-
+        option = request.form.get('flexswitch')
+        mitotic_graph = option == "on"
         df_list = []
         strain_name_list = []
         file_namelist_list = []
@@ -73,23 +77,54 @@ def multiplestrains_plot(strainnumber):
         cache = df_list
         session["files_list_list"]=file_namelist_list
         session["strain_name_list"]=strain_name_list
-        print(session)
-        return redirect(url_for('plot', strains=strainnumber))
+        if mitotic_graph:
+            return redirect(url_for('mitotic_graph',strains=strainnumber))
+        else:
+            return redirect(url_for('plot', strains=strainnumber))
 
     return render_template('multiplestrains_plot.html', lines=strainnumber)
+
+@app.route('/mitotic_graph/<int:strains>',methods=['GET','POST'])
+def mitotic_graph(strains):
+    if request.method == 'POST':
+        for n in range(strains):
+            if f'files[]{n + 1}' not in request.files:
+                flash(f'No files for strain {n + 1} part')
+                return redirect(request.url)
+
+            files = request.files.getlist(f'files[]{n + 1}')
+
+            result = []
+            for file in files:
+                if not allowed_file(file.filename):
+                    flash('Please upload only .csv (excel) files')
+                    return redirect(request.url)
+                result.append(read_mitotic_file_into_average(file))
+
+
+            print("mitotic zone", result)
+            session["mitotic_zone"] = result
+            session["mitotic_mode"] = "True"
+            return redirect(url_for('plot', strains=strains))
+
+    return render_template('mitotic_graph.html', strains=strains)
+
 
 @app.route('/plot/<int:strains>', methods=['GET', 'POST'])
 def plot(strains):
 
     #this need to be retrieved from database because is too big
     dataframes = cache
+    mitotic_graph_info = session.get("mitotic_zone")
+    mitotic_files_loaded = session.get("mitotic_mode") == "True"
+    print("retrieved mitotic graph info", mitotic_graph_info)
     strain_name_list = session.get("strain_name_list")
     files_list_list = session.get("files_list_list")
     print("retrieving session", strain_name_list,files_list_list,session["files_list_list"],dataframes)
 
     if request.method == 'POST':
-        # TODO 8: MAKE IT SWITCH MODE MITOTIC ZONE GRAPH
-
+        option_switch = request.form.get('flexswitch2')
+        mitotic_switched_on = option_switch == "on"
         points = request.form.get("number_of_points")
         option = request.form.getlist('flexRadioDefault')
         std = option[0] == "std"
@@ -122,10 +157,12 @@ def plot(strains):
 
         return render_template('plot.html', strains=strains, image=b64, files_list_list=files_list_list,
                                strain_name_list=strain_name_list, npoints=int(points), range_fold=per_fld,
-                               range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld)
+                               range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld,
+                               mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on)
 
     return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
-                           npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False)
+                           npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False,
+                           mitotic=mitotic_files_loaded, mitotic_switched_on=True)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

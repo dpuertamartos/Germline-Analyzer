@@ -27,6 +27,18 @@
           </div>
           <div class="col-5 align-self-center mx-auto">
               <form method="post" action="{{ url_for('plot', strains=strains) }}" enctype="multipart/form-data">
+                  {% if mitotic %}
+                  <div class="row">
+                        <div class="form-check form-switch">
+                            {% if mitotic_switched_on %}
+                            <input class="form-check-input" type="checkbox" name="flexswitch2" id="flexSwitchCheckDefault2" checked>
+                            {% else %}
+                            <input class="form-check-input" type="checkbox" name="flexswitch2" id="flexSwitchCheckDefault2">
+                            {% endif %}
+                            <label class="form-check-label" for="flexSwitchCheckDefault2">Mitotic zone graph</label>
+                        </div>
+                  </div>
+                  {% endif %}
                   <div class="row">
                       <div class="col-sm-5">
                           <label for="customRange3" class="form-label fTitle">Number of points</label>
