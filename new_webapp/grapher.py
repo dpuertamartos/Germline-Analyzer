@@ -6,13 +6,13 @@ import base64
 #TODO: DPI SELECTOR, AND CHECK THAT BASE64 ENCODING DOESN'T CHANGE DPI
 #TODO: Adjust Y lims depending of standarize method used
 #TODO: X and Y labels?
-standard_colors = [[0, 0.4470, 0.7410],[0.8500, 0.3250, 0.0980],[0.9290, 0.6940, 0.1250],[0.4940, 0.1840, 0.5560],[0.4660, 0.6740, 0.1880],[0.3010, 0.7450, 0.9330], [0.6350, 0.0780, 0.1840]]
+standard_colors = [[0, 0.4470, 0.7410],[0.8500, 0.3250, 0.0980],[0.4660, 0.6740, 0.1880],[0.6350, 0.0780, 0.1840],[0.4940, 0.1840, 0.5560],[0.3010, 0.7450, 0.9330],[0.9290, 0.6940, 0.1250]]
 
-def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_namelist_list=["None"], mitotic_mode = False, strains_mitotic_percentage=["32","25"]):
+def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_namelist_list=["None"], mitotic_mode = False, strains_mitotic_percentage=["32","25"], strains_error=["5","3"]):
     v = 100 / len(df[0].average)
 
     if mitotic_mode:
-        fig, axis = plt.subplots(2, constrained_layout=True, gridspec_kw={'height_ratios': [2, 20]})
+        fig, axis = plt.subplots(2, constrained_layout=True, gridspec_kw={'height_ratios': [len(strain_name_list), 20]})
         # axis[1].set_title(f'{title}')
         for i, df in enumerate(df):
             print(df.index, v, "df.index*v", df.index * v)
@@ -24,7 +24,7 @@ def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_nameli
         axis[1].legend()
         strains = strain_name_list
         mean_mitotic_percentage = [float(p) for p in strains_mitotic_percentage]
-        subplot_2_error = [e / 10 for e in mean_mitotic_percentage]
+        subplot_2_error = [float(p) for p in strains_error]
         axis[0].barh(strains, mean_mitotic_percentage, xerr=subplot_2_error,
                      color=standard_colors[0:len(mean_mitotic_percentage)])
         axis[0].set_title('PRUEBA')

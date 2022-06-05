@@ -8,6 +8,9 @@ body {
   vertical-align: text-bottom;
 }
 
+.switcher{
+  margin: 3% 0 3%;
+}
 /*
  * Sidebar
  */
@@ -186,3 +189,4 @@ section.range-slider input:last-of-type::-moz-range-track {
   section.range-slider input[type=range]::-moz-focus-outer {
   border: 0;
 }
+

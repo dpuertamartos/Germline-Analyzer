@@ -6,13 +6,14 @@ from werkzeug.utils import secure_filename
 def read_mitotic_file_into_average(file):
     df = pd.read_csv(file, header=None)
     a = df[0].to_numpy()
-    return str(round(sum(a)/len(a),2))
+    average = str(round(sum(a)/len(a),2))
+    dev_standard = str(round(df[0].std(), 2))
+    return [average,dev_standard]
 
 def files_to_dictionary(files):
     d = {}
     for file in files:
         filename = secure_filename(file.filename)
-        print("filename",filename)
         df = pd.read_csv(file)
         d[filename] = df
     return d
@@ -28,7 +29,6 @@ class GetList(object):
 
     def setFile(self, file):
         self.file = file
-        print("getlister created self.file",self.file)
 
     def plot(self):
         plt.plot(self.point_list)

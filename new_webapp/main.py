@@ -89,6 +89,7 @@ def mitotic_graph(strains):
     strain_name_list = session.get("strain_name_list")
     if request.method == 'POST':
         result = []
+        result_std = []
         for n in range(strains):
 
             file = request.files.getlist(f'file1{n}')[0]
@@ -96,10 +97,13 @@ def mitotic_graph(strains):
             if not allowed_file(file.filename):
                 flash('Please upload only .csv (excel) files')
                 return redirect(request.url)
-            result.append(read_mitotic_file_into_average(file))
+            av, dv = read_mitotic_file_into_average(file)
+            result.append(av)
+            result_std.append(dv)
 
         print("mitotic zone", result)
         session["mitotic_zone"] = result
+        session["mitotic_zone_error"] = result_std
         session["mitotic_mode"] = "True"
         return redirect(url_for('plot', strains=strains))
 
@@ -112,11 +116,12 @@ def plot(strains):
     #this need to be retrieved from database because is too big
     dataframes = cache
     mitotic_graph_info = session.get("mitotic_zone")
+    mitotic_graph_error = session.get("mitotic_zone_error")
     mitotic_files_loaded = session.get("mitotic_mode") == "True"
-    print("retrieved mitotic graph info", mitotic_graph_info)
+    print("retrieved mitotic graph info", mitotic_graph_info, mitotic_graph_error)
     strain_name_list = session.get("strain_name_list")
     files_list_list = session.get("files_list_list")
-    print("retrieving session", strain_name_list,files_list_list,session["files_list_list"],dataframes)
+    print("retrieving session", strain_name_list,files_list_list)
 
     if request.method == 'POST':
         option_switch = request.form.get('flexswitch2')
@@ -148,7 +153,8 @@ def plot(strains):
         fig = plotGermline(list_of_dataframes_processed, title="PRUEBA",
                            strain_name_list=strain_name_list,
                            file_namelist_list=files_list_list,
-                           mitotic_mode=mitotic_switched_on, strains_mitotic_percentage=mitotic_graph_info)
+                           mitotic_mode=mitotic_switched_on,
+                           strains_mitotic_percentage=mitotic_graph_info, strains_error=mitotic_graph_error)
         png = convert_plot_to_png(fig)
         b64 = encode_png_to_base64(png)
 

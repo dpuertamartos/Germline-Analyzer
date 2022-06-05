@@ -29,7 +29,7 @@
               <form method="post" action="{{ url_for('plot', strains=strains) }}" enctype="multipart/form-data">
                   {% if mitotic %}
                   <div class="row">
-                        <div class="form-check form-switch">
+                        <div class="form-check form-switch switcher">
                             {% if mitotic_switched_on %}
                             <input class="form-check-input" type="checkbox" name="flexswitch2" id="flexSwitchCheckDefault2" checked>
                             {% else %}
