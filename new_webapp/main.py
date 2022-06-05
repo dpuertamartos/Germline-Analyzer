@@ -41,10 +41,9 @@ def index():
 def multiplestrains_plot(strainnumber):
     global cache
     if request.method == 'POST':
-        # TODO: Store dataframes in database then retrieve them for each plot configuration
-        # TODO 3: Improve grapher options
+        # TODO OPTIONAL: Store dataframes in database then retrieve them for each plot configuration
+        # TODO 3: Fix get starter guide
         # TODO 4: Reorganize imports , .env, .gitignore and all
-        # TODO 5: Fix all redirects
         # TODO OPTIONAL: Organize dataframes stored per user
         option = request.form.get('flexswitch')
         mitotic_graph = option == "on"
