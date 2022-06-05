@@ -110,6 +110,7 @@ def plot(strains):
     strain_name_list = session.get("strain_name_list")
     files_list_list = session.get("files_list_list")
     print("retrieving session", strain_name_list,files_list_list)
+    print("retrieving cache",cache)
 
     if request.method == 'POST':
         option_switch = request.form.get('flexswitch2')
