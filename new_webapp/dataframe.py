@@ -126,10 +126,11 @@ class GermlineAnalyzer(object):
         print("filenames", self.filenames)
         return self.df
 
-file = "./Values/Libro1.csv"
-print(read_mitotic_file_into_average(file))
-
+# file = "./Values/Libro1.csv"
+# print(read_mitotic_file_into_average(file))
+#
 # from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
+#
 #
 # files = ["./Values/Values1.csv", "./Values/Values2.csv"]
 # d= files_to_dictionary(files)
@@ -137,8 +138,8 @@ print(read_mitotic_file_into_average(file))
 # germline = GermlineAnalyzer(d, standarized=False, number_of_points=33, percentage_for_fold_increase=[0.00, 0.04])
 # germline2 = GermlineAnalyzer(d, standarized=False, number_of_points=33, percentage_for_fold_increase=[0.00, 0.04])
 # fig = plotGermline([germline.process(), germline2.process()], title="PRUEBA",
-#              strain_name_list=["MES-4", "MES-4 falso"],
-#              file_namelist_list=[files, files[0:3]])
+#               strain_name_list=["MES-4", "MES-4 falso"],
+#               file_namelist_list=[files,files], dpi=200)
 # png = convert_plot_to_png(fig)
 # encode_png_to_base64(png)
 

@@ -42,7 +42,6 @@ def multiplestrains_plot(strainnumber):
     global cache
     if request.method == 'POST':
         # TODO: Store dataframes in database then retrieve them for each plot configuration
-        # TODO 2.5: Fix bug when 2 mitotic graph uploaded
         # TODO 3: Improve grapher options
         # TODO 4: Reorganize imports , .env, .gitignore and all
         # TODO 5: Fix all redirects
@@ -80,6 +79,7 @@ def multiplestrains_plot(strainnumber):
         if mitotic_graph:
             return redirect(url_for('mitotic_graph',strains=strainnumber))
         else:
+            session["mitotic_mode"] = "False"
             return redirect(url_for('plot', strains=strainnumber))
 
     return render_template('multiplestrains_plot.html', lines=strainnumber)
@@ -127,6 +127,9 @@ def plot(strains):
         option_switch = request.form.get('flexswitch2')
         mitotic_switched_on = option_switch == "on"
         points = request.form.get("number_of_points")
+        dpi = int(request.form.get("dpi"))
+        if dpi > 500:
+            dpi = 500
         option = request.form.getlist('flexRadioDefault')
         std = option[0] == "std"
         fld = option[0] == "fold"
@@ -154,17 +157,18 @@ def plot(strains):
                            strain_name_list=strain_name_list,
                            file_namelist_list=files_list_list,
                            mitotic_mode=mitotic_switched_on,
-                           strains_mitotic_percentage=mitotic_graph_info, strains_error=mitotic_graph_error)
+                           strains_mitotic_percentage=mitotic_graph_info, strains_error=mitotic_graph_error,
+                           dpi=dpi)
         png = convert_plot_to_png(fig)
         b64 = encode_png_to_base64(png)
 
         return render_template('plot.html', strains=strains, image=b64, files_list_list=files_list_list,
                                strain_name_list=strain_name_list, npoints=int(points), range_fold=per_fld,
-                               range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld,
+                               range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld, dpi=dpi,
                                mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on)
 
     return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
-                           npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False,
+                           npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False, dpi=100,
                            mitotic=mitotic_files_loaded, mitotic_switched_on=True)
 
 if __name__ == "__main__":
