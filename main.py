@@ -5,22 +5,11 @@ import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 
-# Get current path
-path = os.getcwd()
-# file Upload
-UPLOAD_FOLDER = os.path.join(path, '/temp')
-
-# Make directory if uploads is not exists
-if not os.path.isdir(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
-
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv'])
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
