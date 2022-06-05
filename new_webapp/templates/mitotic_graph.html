@@ -31,7 +31,9 @@
                                 </dl>
                             </div>
                             <div class="col-sm-4">
-                                <input type="text" name="strainname{{ n+1 }}" value="Introduce strain name" class="input-group-text choosebutton">
+                                <fieldset disabled>
+                                <input type="text" id="disabledTextInput" class="form-control" placeholder="{{strains_names[0]}}">
+                                </fieldset>
                             </div>
                             {% if n+1==strains %}
                             <div class="col-sm-3">

@@ -42,7 +42,8 @@ def multiplestrains_plot(strainnumber):
     global cache
     if request.method == 'POST':
         # TODO: Store dataframes in database then retrieve them for each plot configuration
-        # TODO 2: Improve mitotic graph selection files (only let upload 1 file per strain, save name of strain for mitotic file upload, and don't let user change it)
+        # TODO 2: Improve mitotic graph selection files (only let upload 1 file per strain)
+        # TODO 2.5: Fix bug when 2 mitotic graph uploaded
         # TODO 3: Improve grapher options
         # TODO 4: Reorganize imports , .env, .gitignore and all
         # TODO 5: Fix all redirects
@@ -86,6 +87,7 @@ def multiplestrains_plot(strainnumber):
 
 @app.route('/mitotic_graph/<int:strains>',methods=['GET','POST'])
 def mitotic_graph(strains):
+    strain_name_list = session.get("strain_name_list")
     if request.method == 'POST':
         for n in range(strains):
             if f'files[]{n + 1}' not in request.files:
@@ -107,7 +109,7 @@ def mitotic_graph(strains):
             session["mitotic_mode"] = "True"
             return redirect(url_for('plot', strains=strains))
 
-    return render_template('mitotic_graph.html', strains=strains)
+    return render_template('mitotic_graph.html', strains=strains, strains_names=strain_name_list)
 
 
 @app.route('/plot/<int:strains>', methods=['GET', 'POST'])
