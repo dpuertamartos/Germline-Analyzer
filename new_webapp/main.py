@@ -42,7 +42,6 @@ def multiplestrains_plot(strainnumber):
     global cache
     if request.method == 'POST':
         # TODO: Store dataframes in database then retrieve them for each plot configuration
-        # TODO 2: Improve mitotic graph selection files (only let upload 1 file per strain)
         # TODO 2.5: Fix bug when 2 mitotic graph uploaded
         # TODO 3: Improve grapher options
         # TODO 4: Reorganize imports , .env, .gitignore and all
@@ -89,25 +88,20 @@ def multiplestrains_plot(strainnumber):
 def mitotic_graph(strains):
     strain_name_list = session.get("strain_name_list")
     if request.method == 'POST':
+        result = []
         for n in range(strains):
-            if f'files[]{n + 1}' not in request.files:
-                flash(f'No files for strain {n + 1} part')
+
+            file = request.files.getlist(f'file1{n}')[0]
+            print(file)
+            if not allowed_file(file.filename):
+                flash('Please upload only .csv (excel) files')
                 return redirect(request.url)
+            result.append(read_mitotic_file_into_average(file))
 
-            files = request.files.getlist(f'files[]{n + 1}')
-
-            result = []
-            for file in files:
-                if not allowed_file(file.filename):
-                    flash('Please upload only .csv (excel) files')
-                    return redirect(request.url)
-                result.append(read_mitotic_file_into_average(file))
-
-
-            print("mitotic zone", result)
-            session["mitotic_zone"] = result
-            session["mitotic_mode"] = "True"
-            return redirect(url_for('plot', strains=strains))
+        print("mitotic zone", result)
+        session["mitotic_zone"] = result
+        session["mitotic_mode"] = "True"
+        return redirect(url_for('plot', strains=strains))
 
     return render_template('mitotic_graph.html', strains=strains, strains_names=strain_name_list)
 

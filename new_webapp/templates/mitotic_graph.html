@@ -24,11 +24,9 @@
                         {% for n in range(strains) %}
                         <div class="row">
                             <div class="col-sm-5">
-                                <dl class="choosfilecontainer">
-                                    <p>
-                                        <input type="file" class="form-control choosebutton" name="files[]{{ n+1 }}" multiple="true" autocomplete="off" required>
-                                    </p>
-                                </dl>
+                                <p>
+                                    <input class="form-control choosebutton" type="file" id="formFile" name="file1{{n}}" required>
+                                </p>
                             </div>
                             <div class="col-sm-4">
                                 <fieldset disabled>
