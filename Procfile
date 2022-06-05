@@ -1,1 +1,1 @@
-web: gunicorn main:app
+web: sh -c 'cd ./new_webapp/ && exec gunicorn main:app --log-file -'
