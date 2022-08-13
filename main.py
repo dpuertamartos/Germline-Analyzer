@@ -5,6 +5,7 @@ import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
+import random
 
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv'])
@@ -64,11 +65,13 @@ def multiplestrains_plot(strainnumber):
             strain_name_list.append(strain)
             file_namelist_list.append(filenamelist)
 
+        id = str(random.randint(0,10000000))
         #storing DF to database(table name=strain name+file name)
         for i in range(len(df_list)):
             for key in df_list[i]:
-                df_list[i][key].to_sql(name=strain_name_list[i]+key, con=db.engine, index=False)
+                df_list[i][key].to_sql(name=strain_name_list[i]+key+id, con=db.engine, index=False)
 
+        session["id"] = id
         session["files_list_list"] = file_namelist_list
         session["strain_name_list"] = strain_name_list
         if mitotic_graph:
@@ -109,7 +112,7 @@ def mitotic_graph(strains):
 def plot(strains):
 
     #this need to be retrieved from database because is too big
-
+    id = session.get("id")
     mitotic_graph_info = session.get("mitotic_zone")
     mitotic_graph_error = session.get("mitotic_zone_error")
     mitotic_files_loaded = session.get("mitotic_mode") == "True"
@@ -125,7 +128,7 @@ def plot(strains):
             s = strains[x]
             for j in range(len(files_list_list[x])):
                 f = files_list_list[x][j]
-                dictio[f] = pd.read_sql(s+f, db.engine)
+                dictio[f] = pd.read_sql(s+f+id, db.engine)
             dataframes.append(dictio)
         return dataframes
 
