@@ -4,17 +4,22 @@ from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
 import pandas as pd
 import os
 from werkzeug.utils import secure_filename
+from flask_sqlalchemy import SQLAlchemy
 
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv'])
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.db"
+
+db = SQLAlchemy(app)
+#reset database eachtime webapp is launched
+db.reflect()
+db.drop_all()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-cache = []
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -28,7 +33,6 @@ def index():
 
 @app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
 def multiplestrains_plot(strainnumber):
-    global cache
     if request.method == 'POST':
         # TODO OPTIONAL: Store dataframes in database then retrieve them for each plot configuration
         # TODO 3: Fix get starter guide
@@ -60,10 +64,13 @@ def multiplestrains_plot(strainnumber):
             strain_name_list.append(strain)
             file_namelist_list.append(filenamelist)
 
-        #this need to be stored in database because is too big
-        cache = df_list
-        session["files_list_list"]=file_namelist_list
-        session["strain_name_list"]=strain_name_list
+        #storing DF to database(table name=strain name+file name)
+        for i in range(len(df_list)):
+            for key in df_list[i]:
+                df_list[i][key].to_sql(name=strain_name_list[i]+key, con=db.engine, index=False)
+
+        session["files_list_list"] = file_namelist_list
+        session["strain_name_list"] = strain_name_list
         if mitotic_graph:
             return redirect(url_for('mitotic_graph',strains=strainnumber))
         else:
@@ -102,7 +109,7 @@ def mitotic_graph(strains):
 def plot(strains):
 
     #this need to be retrieved from database because is too big
-    dataframes = cache
+
     mitotic_graph_info = session.get("mitotic_zone")
     mitotic_graph_error = session.get("mitotic_zone_error")
     mitotic_files_loaded = session.get("mitotic_mode") == "True"
@@ -110,7 +117,19 @@ def plot(strains):
     strain_name_list = session.get("strain_name_list")
     files_list_list = session.get("files_list_list")
     print("retrieving session", strain_name_list,files_list_list)
-    print("retrieving cache",cache)
+
+    def retrieve_from_db(strains,files_list_list):
+        dataframes = []
+        for x in range(len(strains)):
+            dictio = {}
+            s = strains[x]
+            for j in range(len(files_list_list[x])):
+                f = files_list_list[x][j]
+                dictio[f] = pd.read_sql(s+f, db.engine)
+            dataframes.append(dictio)
+        return dataframes
+
+    dataframes = retrieve_from_db(strain_name_list, files_list_list)
 
     if request.method == 'POST':
         option_switch = request.form.get('flexswitch2')
