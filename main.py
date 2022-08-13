@@ -110,8 +110,10 @@ def mitotic_graph(strains):
 
 @app.route('/plot/<int:strains>', methods=['GET', 'POST'])
 def plot(strains):
+    #TODO 1: LET USER PERMANTENT STORE THEIR DATA
+    #TODO 2: FIX MOBILE INTERFACE(NUMBER OF STRAINS SELECTOR AND POSS OTHER)
+    #TODO 3: CLEAN CODE
 
-    #this need to be retrieved from database because is too big
     id = session.get("id")
     mitotic_graph_info = session.get("mitotic_zone")
     mitotic_graph_error = session.get("mitotic_zone_error")
