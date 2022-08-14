@@ -113,6 +113,8 @@ def plot(strains):
     #TODO 1: LET USER PERMANTENT STORE THEIR DATA
     #TODO 2: FIX MOBILE INTERFACE(NUMBER OF STRAINS SELECTOR AND POSS OTHER)
     #TODO 3: CLEAN CODE
+    #TODO 4: BUG WHEN YOU CHOOSE MITOTIC ZONE OPTION, THEY WILL ALL HAVE THE SAME NAME
+    #OF FIRST STRAIN IN THE MITOTIC ZONE LOAD DATA WINDOW
 
     id = session.get("id")
     mitotic_graph_info = session.get("mitotic_zone")
@@ -183,6 +185,27 @@ def plot(strains):
     return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
                            npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False, dpi=100,
                            mitotic=mitotic_files_loaded, mitotic_switched_on=True)
+
+@app.route('/trial', methods=['GET'])
+def trial():
+    session["mitotic_zone"] = [22.89]
+    session["mitotic_zone_error"] = [3.69]
+    session["mitotic_mode"] = "True"
+    id = str(random.randint(0, 1000))
+    session["id"] = id
+    strain_name_list = ["MES-4::GFP"]
+    files = ["./Values/Values1.csv", "./Values/Values2.csv","./Values/Values3.csv",
+             "./Values/Values4.csv", "./Values/Values5.csv", "./Values/Values6.csv"]
+    session["files_list_list"] = [[f.split("/")[2] for f in files]]
+    session["strain_name_list"] = strain_name_list
+    #storing DF to database(table name=strain name+file name)
+    df_list = [{f.split("/")[2]: pd.read_csv(f) for f in files}]
+    print(df_list)
+    for i in range(len(df_list)):
+        for key in df_list[i]:
+            df_list[i][key].to_sql(name=strain_name_list[i]+key+id, con=db.engine, index=False)
+
+    return redirect(url_for('plot', strains=1))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
