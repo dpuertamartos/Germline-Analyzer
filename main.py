@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, flash, request, session, jsonify
-from dataframe import GermlineAnalyzer, files_to_dictionary, read_mitotic_file_into_average
+from dataframe import GermlineAnalyzer, files_to_dictionary, read_mitotic_file_into_average, extract_length
 from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
 import pandas as pd
 import os
@@ -114,6 +114,9 @@ def plot(strains):
     #TODO 2: FIX MOBILE INTERFACE(NUMBER OF STRAINS SELECTOR AND POSS OTHER)
     #TODO 3: CLEAN CODE
     #TODO 4: BUG WHEN YOU CHOOSE MITOTIC ZONE OPTION, THEY WILL ALL HAVE THE SAME NAME
+    #TODO 5: LET USER SEE EACH GONAD LENGTH
+    #TODO 6: LET USER DECIDE TO USE ABSOLUTES
+    #TODO 7: LET USER DECIDE TO CUT ABSOLUTES
     #OF FIRST STRAIN IN THE MITOTIC ZONE LOAD DATA WINDOW
 
     id = session.get("id")
@@ -137,6 +140,11 @@ def plot(strains):
         return dataframes
 
     dataframes = retrieve_from_db(strain_name_list, files_list_list)
+
+    #extract lenght info
+    final_length_list = extract_length(dataframes)
+    print("final length list", final_length_list)
+
 
     if request.method == 'POST':
         option_switch = request.form.get('flexswitch2')
@@ -167,6 +175,7 @@ def plot(strains):
                                     percentage_for_fold_increase=range_array)
 
             list_of_dataframes_processed.append(germline.process())
+            print("germline length", germline.return_max_length())
 
         fig = plotGermline(list_of_dataframes_processed, title="PRUEBA",
                            strain_name_list=strain_name_list,
