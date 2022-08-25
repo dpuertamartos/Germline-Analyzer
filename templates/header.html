@@ -92,11 +92,13 @@
                     {% endif %}
                 </h6>
                 <ul class="nav flex-column mb-2">
-                    {% for file in files_list_list[loop.index-1] %}
+                    {% set a = loop.index-1 %}
+                    {% for file in files_list_list[a] %}
                         <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <span data-feather="file-text"></span>
                                 {{ file }}
+                                {{ lengths_list_list[a][loop.index-1] }}
                             </a>
                         </li>
                     {% endfor %}

@@ -114,9 +114,9 @@ def plot(strains):
     #TODO 2: FIX MOBILE INTERFACE(NUMBER OF STRAINS SELECTOR AND POSS OTHER)
     #TODO 3: CLEAN CODE
     #TODO 4: BUG WHEN YOU CHOOSE MITOTIC ZONE OPTION, THEY WILL ALL HAVE THE SAME NAME
-    #TODO 5: LET USER SEE EACH GONAD LENGTH
-    #TODO 6: LET USER DECIDE TO USE ABSOLUTES
-    #TODO 7: LET USER DECIDE TO CUT ABSOLUTES
+    #TODO 5: IMPROVE AESTHETIC OF GONAD LENGTH
+    #TODO 6: LET USER DECIDE TO USE ABSOLUTE LENGTH
+    #TODO 7: LET USER DECIDE TO CUT ABSOLUTE LENGTH
     #OF FIRST STRAIN IN THE MITOTIC ZONE LOAD DATA WINDOW
 
     id = session.get("id")
@@ -187,11 +187,12 @@ def plot(strains):
         b64 = encode_png_to_base64(png)
 
         return render_template('plot.html', strains=strains, image=b64, files_list_list=files_list_list,
-                               strain_name_list=strain_name_list, npoints=int(points), range_fold=per_fld,
+                               strain_name_list=strain_name_list, lengths_list_list=final_length_list, npoints=int(points), range_fold=per_fld,
                                range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld, dpi=dpi,
                                mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on)
 
     return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
+                           lengths_list_list=final_length_list,
                            npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False, dpi=100,
                            mitotic=mitotic_files_loaded, mitotic_switched_on=True)
 
