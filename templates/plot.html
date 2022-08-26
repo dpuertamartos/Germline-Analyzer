@@ -16,8 +16,10 @@
           </p>
           </div>
         <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group me-2">
-
+          <div class="container">
+                {% for strain in average_length %}
+                <div class="row">{{ strain }}</div>
+                {% endfor %}
           </div>
         </div>
       </div>

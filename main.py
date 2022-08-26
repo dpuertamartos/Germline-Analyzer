@@ -115,8 +115,11 @@ def plot(strains):
     #TODO 3: CLEAN CODE
     #TODO 4: BUG WHEN YOU CHOOSE MITOTIC ZONE OPTION, THEY WILL ALL HAVE THE SAME NAME
     #TODO 5: IMPROVE AESTHETIC OF GONAD LENGTH
-    #TODO 6: LET USER DECIDE TO USE ABSOLUTE LENGTH
+    #TODO 6: LET USER DECIDE TO USE ABSOLUTE LENGTH, IF DETERMINE SAME LENGTH UNIT
+    #TODO 6.5: BUTTON TO TURN ABSOLUTE LENGTH ITS FADED IF SAME LENGTH UNIT = FALSE
     #TODO 7: LET USER DECIDE TO CUT ABSOLUTE LENGTH
+    #TODO 7.5: CUT ABSOLUTE LENGTH ITS OFF IF SAME LENGTH UNIT = FALSE
+    #TODO 8: ADD STD TO AVERAGE GONAD LENGTH
     #OF FIRST STRAIN IN THE MITOTIC ZONE LOAD DATA WINDOW
 
     id = session.get("id")
@@ -143,6 +146,31 @@ def plot(strains):
 
     #extract lenght info
     final_length_list = extract_length(dataframes)
+
+    def determine_same_length_units(l_list_list):
+        units = set()
+        for strain in l_list_list:
+            for length in strain:
+                units.add(length[1])
+        return len(units) == 1
+
+    def calculate_average_length(l_list_list, s_name_list):
+        average_list = []
+        for i , strain in enumerate(l_list_list):
+            strain_average = 0
+            units = set()
+            for length in strain:
+                strain_average += length[0]
+                units.add(length[1])
+            if len(units) == 1:
+                units = list(units)
+                average_list.append([s_name_list[i], round(strain_average/len(strain), 1), units[0]])
+            else:
+                average_list.append([None,"Different units in files"])
+        return average_list
+
+    average_length = calculate_average_length(final_length_list, strain_name_list)
+    print("average", average_length)
     print("final length list", final_length_list)
 
 
@@ -192,7 +220,7 @@ def plot(strains):
                                mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on)
 
     return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
-                           lengths_list_list=final_length_list,
+                           lengths_list_list=final_length_list, average_length=average_length,
                            npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False, dpi=100,
                            mitotic=mitotic_files_loaded, mitotic_switched_on=True)
 
