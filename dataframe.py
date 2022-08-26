@@ -28,6 +28,28 @@ def extract_length(list_of_dictionaries):
         final_length_list.append(intermedium_length_list)
     return final_length_list
 
+def calculate_average_length(l_list_list, s_name_list):
+    average_list = []
+    for i , strain in enumerate(l_list_list):
+        strain_average = 0
+        units = set()
+        for length in strain:
+            strain_average += length[0]
+            units.add(length[1])
+        if len(units) == 1:
+            units = list(units)
+            average_list.append([s_name_list[i], round(strain_average/len(strain), 1), units[0]])
+        else:
+            average_list.append([None,"Different units in files"])
+    return average_list
+
+def determine_same_length_units(l_list_list):
+    units = set()
+    for strain in l_list_list:
+        for length in strain:
+            units.add(length[1])
+    return len(units) == 1
+
 class GetList(object):
     def __init__(self, standarized=False, fold_increased=False, number_of_points=50, percentage_for_fold_increase=[0, 0.04]):
         self.standarized = standarized

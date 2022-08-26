@@ -2,6 +2,9 @@ body {
   font-size: .875rem;
 }
 
+.rangeValues{
+    width: 70px;
+}
 .cr{
     margin: 1% 0 0.5%;
     text-align: center;
