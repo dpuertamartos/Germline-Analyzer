@@ -117,7 +117,6 @@ def plot(strains):
     #TODO 4: BUG WHEN YOU CHOOSE MITOTIC ZONE OPTION, THEY WILL ALL HAVE THE SAME NAME
     #TODO 5: IMPROVE AESTHETIC OF GONAD LENGTH
     #TODO 6: STORE SETTINGS SELECTED BY USER FOR ABSOLUTE LENGTH
-    #TODO 6.5: BLOCK USER FOR SELECTING ABS LENGTH HIGHER THAN MIN LENGTH
     #TODO 7: FIX NUMBER OF POINTS TO TAKE INFO FROM THE BOX AND NOT SLIDE
     #TODO 8: ADD STD TO AVERAGE GONAD LENGTH
     #OF FIRST STRAIN IN THE MITOTIC ZONE LOAD DATA WINDOW
@@ -161,6 +160,8 @@ def plot(strains):
         abs = None
         if abs_switched_on:
             abs = int(request.form.get("abslengthtxt"))
+            if abs > int(min_length):
+                abs = int(min_length)
         points = request.form.get("number_of_points")
         dpi = int(request.form.get("dpi"))
         if dpi > 500:
