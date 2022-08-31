@@ -28,6 +28,14 @@ def extract_length(list_of_dictionaries):
         final_length_list.append(intermedium_length_list)
     return final_length_list
 
+def extract_min_length(list_of_length_lists):
+    m = None
+    for strain in list_of_length_lists:
+        for gonad in strain:
+            if m is None or gonad[0] < m:
+                m = gonad[0]
+    return m
+
 def calculate_average_length(l_list_list, s_name_list):
     average_list = []
     for i , strain in enumerate(l_list_list):
@@ -110,14 +118,18 @@ class GetList(object):
 
 
     def createListOfPoints(self, max_size = None):
-        points_to_take = np.linspace(0, len(self.file)-1, self.number_of_points+1)
+        print("printing self.file", self.file)
+        print("difference for max", self.file.iloc[1,0] - self.file.iloc[0,0])
+        if max_size:
+            n = int(max_size / (self.file.iloc[1, 0] - self.file.iloc[0, 0]))
+            self.file = self.file.iloc[:n+1]
+        print("printing self.file", self.file)
+        points_to_take = np.linspace(0, len(self.file) - 1, self.number_of_points+1)
         points_to_take = [int(x) for x in points_to_take]
         points_to_take.remove(0)
         # divide the number of pixels between number of points
-        if max_size:
-            #Add functionality to cut file until max length selected
-            pass
-        window = int(len(self.file.Gray_Value) / self.number_of_points)
+
+        window = int(len(self.file.Gray_Value) / self.number_of_points+1)
         # create the rolling average taking the previous (100 / self.number_of_points)% of pixels
         roll_df = self.file.rolling(window=window).mean()
         # take the dataframe Gray Value and convert it to a list

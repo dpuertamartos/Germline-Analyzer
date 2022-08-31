@@ -125,7 +125,7 @@
         }
     function getVals(){
   // Get slider values
-      var parent = this.parentNode;
+      var parent = this.parentNode.parentNode;
       var slides = parent.getElementsByTagName("input");
         var slide1 = parseFloat( slides[0].value );
         var slide2 = parseFloat( slides[1].value );

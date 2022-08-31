@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, flash, request, session, jsonify
 from dataframe import GermlineAnalyzer, files_to_dictionary, read_mitotic_file_into_average, \
-    extract_length, calculate_average_length, determine_same_length_units
+    extract_length, calculate_average_length, determine_same_length_units, extract_min_length
 from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
 import pandas as pd
 import os
@@ -121,6 +121,7 @@ def plot(strains):
     #TODO 7: LET USER DECIDE TO CUT ABSOLUTE LENGTH
     #TODO 7.5: CUT ABSOLUTE LENGTH ITS OFF IF SAME LENGTH UNIT = FALSE
     #TODO 8: ADD STD TO AVERAGE GONAD LENGTH
+    #TODO 9: ADD APP TO CALCULATE NUMBER OF INTERVALS INSTEAD OF NUMBER OF POINTS(MORE INTUITIVE)
     #OF FIRST STRAIN IN THE MITOTIC ZONE LOAD DATA WINDOW
 
     id = session.get("id")
@@ -148,6 +149,7 @@ def plot(strains):
     #extract lenght info
     final_length_list = extract_length(dataframes)
     average_length = calculate_average_length(final_length_list, strain_name_list)
+    min_length = extract_min_length(final_length_list)
     can_absolute_length = determine_same_length_units(final_length_list)
     print("average", average_length)
     print("final length list", final_length_list)
@@ -194,14 +196,14 @@ def plot(strains):
         b64 = encode_png_to_base64(png)
 
         return render_template('plot.html', strains=strains, image=b64, files_list_list=files_list_list,
-                               strain_name_list=strain_name_list, lengths_list_list=final_length_list,
+                               strain_name_list=strain_name_list, lengths_list_list=final_length_list, min_length=min_length,
                                average_length=average_length, can_absolute_length=can_absolute_length,
                                npoints=int(points), range_fold=per_fld,
                                range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld, dpi=dpi,
                                mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on)
 
     return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
-                           lengths_list_list=final_length_list, average_length=average_length, can_absolute_length=can_absolute_length,
+                           lengths_list_list=final_length_list, min_length=min_length, average_length=average_length, can_absolute_length=can_absolute_length,
                            npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False, dpi=100,
                            mitotic=mitotic_files_loaded, mitotic_switched_on=True)
 

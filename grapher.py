@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import io
 import base64
@@ -10,15 +11,18 @@ standard_colors = [[0, 0.4470, 0.7410],[0.8500, 0.3250, 0.0980],[0.4660, 0.6740,
 
 def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_namelist_list=["None"], mitotic_mode = False, strains_mitotic_percentage=["32","25"], strains_error=["5","3"],
                  dpi=200):
+
+    #place plot point in the midle of interval (for ex. for 10 intervals, first point will be at 5%)
     v = 100 / len(df[0].average)
+    transformer = lambda x: (x+(v/2))
+    a = np.array([transformer(xi) for xi in df[0].index * v])
 
     if mitotic_mode:
         fig, axis = plt.subplots(2, constrained_layout=True,
                                  gridspec_kw={'height_ratios': [len(strain_name_list), 20]}, dpi=dpi)
         # axis[1].set_title(f'{title}')
         for i, df in enumerate(df):
-            print(df.index, v, "df.index*v", df.index * v)
-            axis[1].errorbar(df.index * v, df.average, df.stddev,
+            axis[1].errorbar(a, df.average, df.stddev,
                              label=f'{strain_name_list[i]} n={len(file_namelist_list[i])}', linestyle=':', marker='^',
                              capsize=3,
                              elinewidth=0.7)
@@ -37,8 +41,7 @@ def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_nameli
     else:
         fig, axis = plt.subplots(1, constrained_layout = True, dpi=dpi)
         for i, df in enumerate(df):
-            print(df.index, v, "df.index*v", df.index * v)
-            axis.errorbar(df.index * v, df.average, df.stddev,
+            axis.errorbar(a, df.average, df.stddev,
                              label=f'{strain_name_list[i]} n={len(file_namelist_list[i])}', linestyle=':', marker='^',
                              capsize=3,
                              elinewidth=0.7)
