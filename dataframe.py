@@ -59,13 +59,15 @@ def determine_same_length_units(l_list_list):
     return len(units) == 1
 
 class GetList(object):
-    def __init__(self, standarized=False, fold_increased=False, number_of_points=50, percentage_for_fold_increase=[0, 0.04]):
+    def __init__(self, standarized=False, fold_increased=False, number_of_points=50,
+                 percentage_for_fold_increase=[0, 0.04], absolute_length=None):
         self.standarized = standarized
         self.fold_increased = fold_increased
         self.file = ""
         self.number_of_points = number_of_points
         self.point_list = []
         self.percentage_for_fold_increase = percentage_for_fold_increase
+        self.absolute_length = absolute_length
 
     def setFile(self, file):
         self.file = file
@@ -117,11 +119,11 @@ class GetList(object):
         self.file["Distance_(pixels)"] = self.file["Distance_(pixels)"] * 100 / self.file["Distance_(pixels)"].max()
 
 
-    def createListOfPoints(self, max_size = None):
+    def createListOfPoints(self):
         print("printing self.file", self.file)
         print("difference for max", self.file.iloc[1,0] - self.file.iloc[0,0])
-        if max_size:
-            n = int(max_size / (self.file.iloc[1, 0] - self.file.iloc[0, 0]))
+        if self.absolute_length is not None:
+            n = int(self.absolute_length / (self.file.iloc[1, 0] - self.file.iloc[0, 0]))
             self.file = self.file.iloc[:n+1]
         print("printing self.file", self.file)
         points_to_take = np.linspace(0, len(self.file) - 1, self.number_of_points+1)
@@ -144,9 +146,12 @@ class GetList(object):
 
 
 class GermlineAnalyzer(object):
-    def __init__(self, dictio, standarized=False, fold_increased=False, number_of_points=50, percentage_for_fold_increase=[0, 0.04]):
+    def __init__(self, dictio, standarized=False, fold_increased=False, number_of_points=50,
+                 percentage_for_fold_increase=[0, 0.04], absolute_length=None):
         self.dictio = dictio
-        self.getlister = GetList(standarized=standarized,fold_increased=fold_increased,number_of_points=number_of_points,percentage_for_fold_increase=percentage_for_fold_increase)
+        self.getlister = GetList(standarized=standarized,
+                                 fold_increased=fold_increased, absolute_length=absolute_length,
+                                 number_of_points=number_of_points,percentage_for_fold_increase=percentage_for_fold_increase)
         self.df = None
         self.filenames = None
         self.max_length = None

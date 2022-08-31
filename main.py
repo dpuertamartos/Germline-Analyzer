@@ -116,12 +116,10 @@ def plot(strains):
     #TODO 3: CLEAN CODE
     #TODO 4: BUG WHEN YOU CHOOSE MITOTIC ZONE OPTION, THEY WILL ALL HAVE THE SAME NAME
     #TODO 5: IMPROVE AESTHETIC OF GONAD LENGTH
-    #TODO 6: LET USER DECIDE TO USE ABSOLUTE LENGTH, IF DETERMINE SAME LENGTH UNIT
-    #TODO 6.5: BUTTON TO TURN ABSOLUTE LENGTH ITS FADED IF SAME LENGTH UNIT = FALSE
-    #TODO 7: LET USER DECIDE TO CUT ABSOLUTE LENGTH
-    #TODO 7.5: CUT ABSOLUTE LENGTH ITS OFF IF SAME LENGTH UNIT = FALSE
+    #TODO 6: STORE SETTINGS SELECTED BY USER FOR ABSOLUTE LENGTH
+    #TODO 6.5: BLOCK USER FOR SELECTING ABS LENGTH HIGHER THAN MIN LENGTH
+    #TODO 7: FIX NUMBER OF POINTS TO TAKE INFO FROM THE BOX AND NOT SLIDE
     #TODO 8: ADD STD TO AVERAGE GONAD LENGTH
-    #TODO 9: ADD APP TO CALCULATE NUMBER OF INTERVALS INSTEAD OF NUMBER OF POINTS(MORE INTUITIVE)
     #OF FIRST STRAIN IN THE MITOTIC ZONE LOAD DATA WINDOW
 
     id = session.get("id")
@@ -157,7 +155,12 @@ def plot(strains):
 
     if request.method == 'POST':
         option_switch = request.form.get('flexswitch2')
+        abs_switch = request.form.get('flexswitchabs')
         mitotic_switched_on = option_switch == "on"
+        abs_switched_on = abs_switch == "on"
+        abs = None
+        if abs_switched_on:
+            abs = int(request.form.get("abslengthtxt"))
         points = request.form.get("number_of_points")
         dpi = int(request.form.get("dpi"))
         if dpi > 500:
@@ -181,7 +184,7 @@ def plot(strains):
         for i in range(len(dataframes)):
             germline = GermlineAnalyzer(dataframes[i], standarized=std, fold_increased=fld,
                                     number_of_points=int(points),
-                                    percentage_for_fold_increase=range_array)
+                                    percentage_for_fold_increase=range_array, absolute_length=abs)
 
             list_of_dataframes_processed.append(germline.process())
             print("germline length", germline.return_max_length())

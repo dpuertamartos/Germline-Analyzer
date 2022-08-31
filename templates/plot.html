@@ -56,9 +56,9 @@
                       <div class="col-3">
                           <div class="form-check form-switch switcher">
                               {% if not can_absolute_length %}
-                                  <input class="form-check-input" type="checkbox" name="flexswitch2" id="flexSwitchCheckDefault2" disabled><span>(DISABLED: Not comparable units)</span>
+                                  <input class="form-check-input" type="checkbox" name="flexswitchabs" id="flexSwitchCheckDefault2" disabled><span>(DISABLED: Not comparable units)</span>
                               {% else %}
-                                  <input class="form-check-input" type="checkbox" name="flexswitch2" id="flexSwitchCheckDefault2">
+                                  <input class="form-check-input" type="checkbox" name="flexswitchabs" id="flexSwitchCheckDefault2">
                               {% endif %}
                               <label class="form-check-label" for="flexSwitchCheckDefault2">Absolute length</label>
                           </div>
@@ -70,11 +70,11 @@
                                       <label for="customRange100" class="form-label fTitle">Compare until selected length</label>
                                   </div>
                                   <div class="col-sm-7">
-                                      <input type="text" id="textInput1" value={{min_length}}>
+                                      <input type="text" name="abslengthtxt" id="textInput1" value={{min_length}}>
                                   </div>
                               </div>
                               <div class="row">
-                                  <input type="range" name="number_of_points" class="form-range slid" value={{min_length}} min="2" max="{{min_length}}" step="10" id="customRange100" onchange="updateTextInput1(this.value);">
+                                  <input type="range" name="abslength" class="form-range slid" value={{min_length}} min="2" max="{{min_length}}" step="10" id="customRange100" onchange="updateTextInput1(this.value);">
                               </div>
                           </div>
                       {% endif %}
