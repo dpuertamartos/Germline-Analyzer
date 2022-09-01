@@ -195,12 +195,12 @@ class GermlineAnalyzer(object):
 
 ##TESTING NEW FUNCTIONALITY
 
-files = ["./Values/Values1.csv", "./Values/Values2.csv"]
-
-a = GetList(standarized=False,fold_increased=False,number_of_points=30,percentage_for_fold_increase=[0, 0.04])
-a.setFile(pd.read_csv("./Values/Values1.csv"))
-c,b = a.return_length()
-print(c,b)
+# files = ["./Values/Values1.csv", "./Values/Values2.csv"]
+#
+# a = GetList(standarized=False,fold_increased=False,number_of_points=30,percentage_for_fold_increase=[0, 0.04])
+# a.setFile(pd.read_csv("./Values/Values1.csv"))
+# c,b = a.return_length()
+# print(c,b)
 
 
 
