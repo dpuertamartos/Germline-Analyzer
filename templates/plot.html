@@ -58,7 +58,11 @@
                               {% if not can_absolute_length %}
                                   <input class="form-check-input" type="checkbox" name="flexswitchabs" id="flexSwitchCheckDefault2" disabled><span>(DISABLED: Not comparable units)</span>
                               {% else %}
+                                  {% if absolute_length_selected %}
+                                  <input class="form-check-input" type="checkbox" name="flexswitchabs" id="flexSwitchCheckDefault2" checked>
+                                  {% else  %}
                                   <input class="form-check-input" type="checkbox" name="flexswitchabs" id="flexSwitchCheckDefault2">
+                                  {% endif %}
                               {% endif %}
                               <label class="form-check-label" for="flexSwitchCheckDefault2">Absolute length</label>
                           </div>
@@ -70,11 +74,11 @@
                                       <label for="customRange100" class="form-label fTitle">Compare until selected length</label>
                                   </div>
                                   <div class="col-sm-7">
-                                      <input type="text" name="abslengthtxt" id="textInput1" value={{min_length}}>
+                                      <input type="text" name="abslengthtxt" id="textInput1" value={{current_length}}>
                                   </div>
                               </div>
                               <div class="row">
-                                  <input type="range" name="abslength" class="form-range slid" value={{min_length}} min="2" max="{{min_length}}" step="10" id="customRange100" onchange="updateTextInput1(this.value);">
+                                  <input type="range" name="abslength" class="form-range slid" value={{current_length}} min="2" max="{{min_length}}" step="10" id="customRange100" onchange="updateTextInput1(this.value);">
                               </div>
                           </div>
                       {% endif %}

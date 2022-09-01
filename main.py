@@ -116,9 +116,8 @@ def plot(strains):
     #TODO 3: CLEAN CODE
     #TODO 4: BUG WHEN YOU CHOOSE MITOTIC ZONE OPTION, THEY WILL ALL HAVE THE SAME NAME
     #TODO 5: IMPROVE AESTHETIC OF GONAD LENGTH
-    #TODO 6: STORE SETTINGS SELECTED BY USER FOR ABSOLUTE LENGTH
-    #TODO 7: FIX NUMBER OF POINTS TO TAKE INFO FROM THE BOX AND NOT SLIDE
     #TODO 8: ADD STD TO AVERAGE GONAD LENGTH
+    #TODO 9: CHANGE PLOT TO SHOW ABSOLUTE UNITS (pixels, micros, cell diameters)
     #OF FIRST STRAIN IN THE MITOTIC ZONE LOAD DATA WINDOW
 
     id = session.get("id")
@@ -148,7 +147,7 @@ def plot(strains):
     average_length = calculate_average_length(final_length_list, strain_name_list)
     min_length = extract_min_length(final_length_list)
     can_absolute_length = determine_same_length_units(final_length_list)
-    print("average", average_length)
+    print("min", min_length)
     print("final length list", final_length_list)
 
 
@@ -158,10 +157,12 @@ def plot(strains):
         mitotic_switched_on = option_switch == "on"
         abs_switched_on = abs_switch == "on"
         abs = None
+        to_show_abs = int(min_length)
         if abs_switched_on:
             abs = int(request.form.get("abslengthtxt"))
             if abs > int(min_length):
                 abs = int(min_length)
+            to_show_abs = abs
         points = request.form.get("number_of_points")
         dpi = int(request.form.get("dpi"))
         if dpi > 500:
@@ -200,14 +201,18 @@ def plot(strains):
         b64 = encode_png_to_base64(png)
 
         return render_template('plot.html', strains=strains, image=b64, files_list_list=files_list_list,
-                               strain_name_list=strain_name_list, lengths_list_list=final_length_list, min_length=min_length,
-                               average_length=average_length, can_absolute_length=can_absolute_length,
+                               strain_name_list=strain_name_list, lengths_list_list=final_length_list,
+                               min_length=min_length, current_length=to_show_abs,
+                               average_length=average_length,
+                               can_absolute_length=can_absolute_length, absolute_length_selected = abs_switched_on,
                                npoints=int(points), range_fold=per_fld,
                                range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld, dpi=dpi,
                                mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on)
 
     return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
-                           lengths_list_list=final_length_list, min_length=min_length, average_length=average_length, can_absolute_length=can_absolute_length,
+                           lengths_list_list=final_length_list, min_length=min_length, current_length=min_length,
+                           average_length=average_length,
+                           can_absolute_length=can_absolute_length, absolute_length_selected=False,
                            npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False, dpi=100,
                            mitotic=mitotic_files_loaded, mitotic_switched_on=True)
 
