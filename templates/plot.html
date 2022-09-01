@@ -16,8 +16,10 @@
           </p>
           </div>
         <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group me-2">
-
+          <div class="container">
+                {% for strain in average_length %}
+                <div class="row">{{ strain }}</div>
+                {% endfor %}
           </div>
         </div>
       </div>
@@ -49,6 +51,37 @@
                   </div>
                   <div class="row">
                       <input type="range" name="number_of_points" class="form-range slid" value={{npoints}} min="2" max="100" step="2" id="customRange3" onchange="updateTextInput(this.value);">
+                  </div>
+                  <div class="row">
+                      <div class="col-3">
+                          <div class="form-check form-switch switcher">
+                              {% if not can_absolute_length %}
+                                  <input class="form-check-input" type="checkbox" name="flexswitchabs" id="flexSwitchCheckDefault2" disabled><span>(DISABLED: Not comparable units)</span>
+                              {% else %}
+                                  {% if absolute_length_selected %}
+                                  <input class="form-check-input" type="checkbox" name="flexswitchabs" id="flexSwitchCheckDefault2" checked>
+                                  {% else  %}
+                                  <input class="form-check-input" type="checkbox" name="flexswitchabs" id="flexSwitchCheckDefault2">
+                                  {% endif %}
+                              {% endif %}
+                              <label class="form-check-label" for="flexSwitchCheckDefault2">Absolute length</label>
+                          </div>
+                      </div>
+                      {% if can_absolute_length %}
+                          <div class="col-9">
+                              <div class="row">
+                                  <div class="col-sm-5">
+                                      <label for="customRange100" class="form-label fTitle">Compare until selected length</label>
+                                  </div>
+                                  <div class="col-sm-7">
+                                      <input type="text" name="abslengthtxt" id="textInput1" value={{current_length}}>
+                                  </div>
+                              </div>
+                              <div class="row">
+                                  <input type="range" name="abslength" class="form-range slid" value={{current_length}} min="2" max="{{min_length}}" step="10" id="customRange100" onchange="updateTextInput1(this.value);">
+                              </div>
+                          </div>
+                      {% endif %}
                   </div>
                   <div class="row">
                       <label for="flexRadioDefault1" class="fTitle">Fluorescence intensity display</label>
@@ -93,16 +126,21 @@
 
                   <div class="row">
                       <label for="rslide" class="form-label fTitle">Range of gonad to compare against (only for fold increase)</label>
-                      <input class="rangeValues" name="rslideValues" value={{range_fold}}>
-                      <section class="range-slider slid" id="rslide">
-                          <input value={{range_fold_1}} min="0" max="100" step="2" type="range">
-                          <input value={{range_fold_2}} min="0" max="100" step="2" type="range">
-                      </section>
+                      <div class="row">
+                          <div class="col-3">
+                              <input class="rangeValues" name="rslideValues" value={{range_fold}}>
+                          </div>
+                          <div class="col-9">
+                              <section class="range-slider slid" id="rslide">
+                                  <input value={{range_fold_1}} min="0" max="100" step="2" type="range">
+                                  <input value={{range_fold_2}} min="0" max="100" step="2" type="range">
+                              </section>
+                          </div>
+                      </div>
                   </div>
                   <div class="row justify-content-center">
                       <div class="col-sm-4">
-                          <label for="dpi_selector" class="form-label fTitle">DPI (max 500)</label>
-                          <input class="rangeValues" type="text" name="dpi" id="dpi_selector" value={{dpi}}>
+                          <label for="dpi_selector" class="form-label fTitle">DPI (max 500)</label><input class="rangeValues" type="text" name="dpi" id="dpi_selector" value={{dpi}}>
                       </div>
                       <div class="col-sm-4">
                           <p class="submitbuttoncontainer">

@@ -2,6 +2,24 @@ body {
   font-size: .875rem;
 }
 
+.rangeValues{
+    width: 70px;
+}
+.cr{
+    margin: 1% 0 0.5%;
+    text-align: center;
+    color: #1C292E;
+    font-size: 1rem;
+}
+
+.github:hover{
+    border-radius: 110px;
+    background-color: #1C292E;
+}
+
+.github{
+    width: 50px;
+}
 .feather {
   width: 16px;
   height: 16px;
