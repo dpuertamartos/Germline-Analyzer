@@ -39,14 +39,15 @@ def extract_min_length(list_of_length_lists):
 def calculate_average_length(l_list_list, s_name_list):
     average_list = []
     for i , strain in enumerate(l_list_list):
-        strain_average = 0
+        strain_average = []
         units = set()
         for length in strain:
-            strain_average += length[0]
+            strain_average.append(length[0])
             units.add(length[1])
         if len(units) == 1:
             units = list(units)
-            average_list.append([s_name_list[i], round(strain_average/len(strain), 1), units[0]])
+            average_list.append([s_name_list[i], round(sum(strain_average)/len(strain), 1),
+                                 "+-"+str(round(pd.Series(strain_average).std(), 1)), units[0]])
         else:
             average_list.append([None,"Different units in files"])
     return average_list
