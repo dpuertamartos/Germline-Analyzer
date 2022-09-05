@@ -42,21 +42,24 @@ def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_nameli
         axis[0].xaxis.set_visible(False)
 
     else:
-        fig = plt.figure(constrained_layout = True, dpi=dpi)
-        axis = fig.add_axes((0.1, 0.3, 0.8, 0.6))
+        fig, axis = plt.subplots(1, constrained_layout = True, dpi=dpi)
+        # fig = plt.figure(constrained_layout = True, dpi=dpi)
+        # axis = fig.add_axes((0.1, 0.3, 0.8, 0.6))
         for i, df in enumerate(df):
             axis.errorbar(a, df.average, df.stddev,
                              label=f'{strain_name_list[i]} n={len(file_namelist_list[i])}', linestyle=':', marker='^',
                              capsize=3,
                              elinewidth=0.7)
         axis.set_xlim(0, 100)
-        ax2 = fig.add_axes((0.1, 0.1, 0.8, 0.0))
-        ax2.yaxis.set_visible(False)
-        new_tick_locations = np.array([0,0.2,0.4,0.6,0.8,1])
-        ax2.set_xticks(new_tick_locations)
-        b = np.array([round(e*super_average,1) for e in new_tick_locations])
-        ax2.set_xticklabels(b)
-        ax2.set_xlabel(average_length[0][3])
+        # #UNCOMMENT FOR Y LIM
+        # axis.set_ylim(30, 108)
+        # ax2 = fig.add_axes((0.1, 0.1, 0.8, 0.0))
+        # ax2.yaxis.set_visible(False)
+        # new_tick_locations = np.array([0,0.2,0.4,0.6,0.8,1])
+        # ax2.set_xticks(new_tick_locations)
+        # b = np.array([round(e*super_average,1) for e in new_tick_locations])
+        # ax2.set_xticklabels(b)
+        # ax2.set_xlabel(average_length[0][3])
         axis.legend()
 
     plt.show()
