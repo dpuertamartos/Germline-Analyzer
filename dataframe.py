@@ -132,11 +132,11 @@ class GetList(object):
         points_to_take.remove(0)
         # divide the number of pixels between number of points
 
-        window = int(len(self.file.Gray_Value) / self.number_of_points+1)
+        window = int(len(self.file.iloc[:, 1]) / self.number_of_points+1)
         # create the rolling average taking the previous (100 / self.number_of_points)% of pixels
         roll_df = self.file.rolling(window=window).mean()
         # take the dataframe Gray Value and convert it to a list
-        roll_df_list = roll_df["Gray_Value"].tolist()
+        roll_df_list = roll_df.iloc[:,1].tolist()
         # Create a (number_of_points) values list (gray value average each (100 / self.number_of_points)% of the germline)
         # For this it takes the rolling average value each (window) pixels
         point_list = [round(roll_df_list[i], 2) for i in points_to_take]
