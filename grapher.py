@@ -53,7 +53,7 @@ def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_nameli
                      color=standard_colors[0:len(mean_mitotic_percentage)])
         axis[0].set_title('PRUEBA')
         axis[0].invert_yaxis()
-        axis[0].set_xlim(0, 100)
+        axis[0].set_xlim(0, a[-1]+1)
         axis[0].xaxis.set_visible(False)
 
     else:
