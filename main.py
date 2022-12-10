@@ -7,6 +7,7 @@ import os
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 import random
+from deta import Deta
 
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv'])
@@ -14,6 +15,13 @@ ALLOWED_EXTENSIONS = set(['csv'])
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.db"
+
+
+# Initialize with a Project Key
+deta = Deta("trial")
+
+# This how to connect to or create a database.
+db = deta.Base("simple_db")
 
 db = SQLAlchemy(app)
 #reset database eachtime webapp is launched
