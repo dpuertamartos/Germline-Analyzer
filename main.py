@@ -16,7 +16,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 
 # Initialize with a Project Key
-deta = Deta()
+deta = Deta("a0z48zlp_HQuVwVoCeAyYApQEnZRsYrPZXAQbX1B9")
 
 # This how to connect to or create a database.
 db = deta.Base("simple_db")
@@ -135,7 +135,6 @@ def plot(strains):
         for j in range(len(files_list_list[x])):
             f = files_list_list[x][j]
             raw = db.get(s + id)
-            print(raw)
             dictio[f] = pd.read_json(raw["value"][j])
         dataframes.append(dictio)
 
