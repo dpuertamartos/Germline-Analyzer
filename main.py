@@ -16,7 +16,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 
 # Initialize with a Project Key
-deta = Deta("a0z48zlp_HQuVwVoCeAyYApQEnZRsYrPZXAQbX1B9")
+deta = Deta()
 
 # This how to connect to or create a database.
 db = deta.Base("simple_db")
