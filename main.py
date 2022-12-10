@@ -5,20 +5,21 @@ from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
 import pandas as pd
 import os
 from werkzeug.utils import secure_filename
-from flask_sqlalchemy import SQLAlchemy
 import random
+from deta import Deta
+import json
 
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv'])
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.db"
 
-db = SQLAlchemy(app)
-#reset database eachtime webapp is launched
-db.reflect()
-db.drop_all()
+# Initialize with a Project Key
+deta = Deta()
+
+# This how to connect to or create a database.
+db = deta.Base("simple_db")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -67,10 +68,13 @@ def multiplestrains_plot(strainnumber):
             file_namelist_list.append(filenamelist)
 
         id = str(random.randint(0,10000000))
-        #storing DF to database(table name=strain name+file name)
+        # storing DF to database(table name=strain name+file name)
         for i in range(len(df_list)):
+            dfs_to_write = []
             for key in df_list[i]:
-                df_list[i][key].to_sql(name=strain_name_list[i]+key+id, con=db.engine, index=False)
+                print(df_list[i][key])
+                dfs_to_write.append(df_list[i][key].to_json())
+            db.put(dfs_to_write, strain_name_list[i] + id, expire_in=2000)
 
         session["id"] = id
         session["files_list_list"] = file_namelist_list
@@ -128,26 +132,24 @@ def plot(strains):
     files_list_list = session.get("files_list_list")
     print("retrieving session", strain_name_list,files_list_list)
 
-    def retrieve_from_db(strains,files_list_list):
-        dataframes = []
-        for x in range(len(strains)):
-            dictio = {}
-            s = strains[x]
-            for j in range(len(files_list_list[x])):
-                f = files_list_list[x][j]
-                dictio[f] = pd.read_sql(s+f+id, db.engine)
-            dataframes.append(dictio)
-        return dataframes
-
-    dataframes = retrieve_from_db(strain_name_list, files_list_list)
+    # def retrieve_from_db:
+    dataframes = []
+    for x in range(len(strain_name_list)):
+        dictio = {}
+        s = strain_name_list[x]
+        for j in range(len(files_list_list[x])):
+            f = files_list_list[x][j]
+            raw = db.get(s + id)
+            print(raw)
+            dictio[f] = pd.read_json(raw["value"][j])
+        dataframes.append(dictio)
 
     #extract lenght info
     final_length_list = extract_length(dataframes)
     average_length = calculate_average_length(final_length_list, strain_name_list)
     min_length = extract_min_length(final_length_list)
     can_absolute_length = determine_same_length_units(final_length_list)
-    print("min", min_length)
-    print("final length list", final_length_list)
+
 
 
     if request.method == 'POST':
@@ -220,7 +222,7 @@ def trial():
     session["mitotic_zone"] = [22.89]
     session["mitotic_zone_error"] = [3.69]
     session["mitotic_mode"] = "True"
-    id = str(random.randint(0, 1000))
+    id = str(random.randint(0, 100000))
     session["id"] = id
     strain_name_list = ["MES-4::GFP"]
     files = ["./Values/Values1.csv", "./Values/Values2.csv","./Values/Values3.csv",
