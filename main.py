@@ -155,6 +155,8 @@ def plot(strains):
         abs_switch = request.form.get('flexswitchabs')
         mitotic_switched_on = option_switch == "on"
         abs_switched_on = abs_switch == "on"
+        if abs_switched_on:
+            mitotic_switched_on = False
         abs = None
         to_show_abs = int(min_length)
         if abs_switched_on:
@@ -174,6 +176,20 @@ def plot(strains):
         range_end = per_fld.split(" - ")[1]
         range_array = [int(range_start) / 100, int(range_end) / 100]
         print("per_fld", per_fld, range_start, range_end, range_array)
+        option2 = request.form.getlist('flexRadioLength')
+        px = option2[0] == "px"
+        mc = option2[0] == "mc"
+        gcd = option2[0] == "gcd"
+        convert_ratio = float(request.form.get("convert_ratio"))
+        convert_ratio_finale = None
+        if px:
+            convert_ratio_finale = 1
+        elif mc:
+            convert_ratio_finale = convert_ratio
+        elif gcd:
+            #micron to gcd ratio is hardcoded as 1/3.5
+            convert_ratio_finale = convert_ratio / 3.5
+
 
         # flash error if range for fold increase is not enough for 1 point
         if fld and int(int(points) * (range_array[1] - range_array[0])) == 0:
@@ -195,7 +211,8 @@ def plot(strains):
                            file_namelist_list=files_list_list,
                            mitotic_mode=mitotic_switched_on,
                            strains_mitotic_percentage=mitotic_graph_info, strains_error=mitotic_graph_error,
-                           dpi=dpi, average_length=average_length, absolute_cut=abs)
+                           dpi=dpi, average_length=average_length, absolute_cut=abs,
+                           conversion=convert_ratio_finale)
         png = convert_plot_to_png(fig)
         b64 = encode_png_to_base64(png)
 
@@ -206,14 +223,14 @@ def plot(strains):
                                can_absolute_length=can_absolute_length, absolute_length_selected = abs_switched_on,
                                npoints=int(points), range_fold=per_fld,
                                range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld, dpi=dpi,
-                               mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on)
+                               mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on, px=px, mc=mc, gcd=gcd, convert_ratio=convert_ratio)
 
     return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
                            lengths_list_list=final_length_list, min_length=min_length, current_length=min_length,
                            average_length=average_length,
                            can_absolute_length=can_absolute_length, absolute_length_selected=False,
                            npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False, dpi=100,
-                           mitotic=mitotic_files_loaded, mitotic_switched_on=True)
+                           mitotic=mitotic_files_loaded, mitotic_switched_on=True, px=False, mc=False, gcd=False, convert_ratio=0.22)
 
 @app.route('/trial', methods=['GET'])
 def trial():

@@ -64,7 +64,7 @@
                                   <input class="form-check-input" type="checkbox" name="flexswitchabs" id="flexSwitchCheckDefault2">
                                   {% endif %}
                               {% endif %}
-                              <label class="form-check-label" for="flexSwitchCheckDefault2">Absolute length</label>
+                              <label class="form-check-label" for="flexSwitchCheckDefault2">Absolute length (auto turn off mitotic zone graph)</label>
                           </div>
                       </div>
                       {% if can_absolute_length %}
@@ -138,7 +138,63 @@
                           </div>
                       </div>
                   </div>
+                  <div class="row">
+                      <label for="flexRadioLength1" class="fTitle">Convert length units</label>
+                  </div>
+                  <div class="row">
+                      <div class="form-check">
+                          {% if not mc and not gcd and not px %}
+                          <input class="form-check-input" type="radio" name="flexRadioLength" id="flexRadioLength0" value="rel" checked>
+                          {% else %}
+                          <input class="form-check-input" type="radio" name="flexRadioLength" id="flexRadioLength0" value="rel">
+                          {% endif %}
+                          <label class="form-check-label" for="flexRadioLength0">
+                            Relative length
+                          </label>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="form-check">
+                          {% if px %}
+                          <input class="form-check-input" type="radio" name="flexRadioLength" id="flexRadioLength1" value="px" checked>
+                          {% else %}
+                          <input class="form-check-input" type="radio" name="flexRadioLength" id="flexRadioLength1" value="px">
+                          {% endif %}
+                          <label class="form-check-label" for="flexRadioLength1">
+                            Pixels
+                          </label>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="form-check">
+                          {% if mc %}
+                          <input class="form-check-input" type="radio" name="flexRadioLength" id="flexRadioLength2" value="mc" checked>
+                          {% else %}
+                          <input class="form-check-input" type="radio" name="flexRadioLength" id="flexRadioLength2" value="mc">
+                          {% endif %}
+                          <label class="form-check-label" for="flexRadioLength2">
+                            Microns
+                          </label>
+                      </div>
+                  </div>
+                  <div class="row">
+
+                      <div class="form-check">
+                          {% if gcd%}
+                          <input class="form-check-input" type="radio" name="flexRadioLength" id="flexRadioLength3" value="gcd" checked>
+                          {% else %}
+                          <input class="form-check-input" type="radio" name="flexRadioLength" id="flexRadioLength3" value="gcd">
+                          {% endif %}
+                          <label class="form-check-label" for="flexRadioLength3">
+                            Germline cell diameters (gcd)
+                          </label>
+                      </div>
+
+                  </div>
                   <div class="row justify-content-center">
+                      <div class="col-sm-4">
+                          <label for="ratio_selector" class="form-label fTitle">ratio (px:micron)</label><input class="rangeValues" type="text" name="convert_ratio" id="ratio_selector" value={{convert_ratio}}>
+                      </div>
                       <div class="col-sm-4">
                           <label for="dpi_selector" class="form-label fTitle">DPI (max 500)</label><input class="rangeValues" type="text" name="dpi" id="dpi_selector" value={{dpi}}>
                       </div>

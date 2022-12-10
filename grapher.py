@@ -10,15 +10,13 @@ import base64
 standard_colors = [[0, 0.4470, 0.7410],[0.8500, 0.3250, 0.0980],[0.4660, 0.6740, 0.1880],[0.6350, 0.0780, 0.1840],[0.4940, 0.1840, 0.5560],[0.3010, 0.7450, 0.9330],[0.9290, 0.6940, 0.1250]]
 
 def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_namelist_list=["None"], mitotic_mode = False, strains_mitotic_percentage=["32","25"], strains_error=["5","3"],
-                 dpi=200, average_length=100, absolute_cut=None):
-    CONVERSION = 0.22/3.5
+                 dpi=200, average_length=100, absolute_cut=None, conversion=None):
     print("absolute", absolute_cut)
-    unit_conversion = True
     #place plot point in the midle of interval (for ex. for 10 intervals, first point will be at 5%)
     v = 100 / len(df[0].average)
     transformer = lambda x: (x+(v/2))
     a = np.array([transformer(xi) for xi in df[0].index * v])
-    if unit_conversion:
+    if conversion:
         if absolute_cut:
             super_average = absolute_cut
             print("absolute super average", super_average)
@@ -28,14 +26,14 @@ def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_nameli
             super_average = round(sum([a[1] for a in average_length])/len(average_length),1)
             print("super_average", super_average)
 
-        super_average_converted = super_average * CONVERSION
+        super_average_converted = super_average * conversion
         #b is x axis values converted to new units
         b = np.array([round(e*super_average_converted/100,1) for e in a])
         print("inside plotGermline")
         print("a",a,"b",b)
         a = b
 
-    if mitotic_mode:
+    if mitotic_mode and not absolute_cut:
         fig, axis = plt.subplots(2, constrained_layout=True,
                                  gridspec_kw={'height_ratios': [len(strain_name_list), 20]}, dpi=dpi)
         # axis[1].set_title(f'{title}')
@@ -53,7 +51,7 @@ def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_nameli
                      color=standard_colors[0:len(mean_mitotic_percentage)])
         axis[0].set_title('PRUEBA')
         axis[0].invert_yaxis()
-        axis[0].set_xlim(0, a[-1]+1)
+        axis[0].set_xlim(0, 100)
         axis[0].xaxis.set_visible(False)
 
     else:
