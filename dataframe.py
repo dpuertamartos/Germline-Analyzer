@@ -88,7 +88,6 @@ class GetList(object):
         else:
             self.standarized = True
             m = max(self.point_list)
-            print("max", m)
             self.point_list = [round(point * 100 / m, 2) for point in self.point_list]
             return self.point_list
 
@@ -101,7 +100,6 @@ class GetList(object):
             print(self.percentage_for_fold_increase, self.number_of_points)
             start = int(self.percentage_for_fold_increase[0] * self.number_of_points)
             end = int(self.percentage_for_fold_increase[1] * self.number_of_points)
-            print(start,end)
             minimum_average = 0
             p = 0
             for i in range(start, end):
@@ -121,12 +119,9 @@ class GetList(object):
 
 
     def createListOfPoints(self):
-        print("printing self.file", self.file)
-        print("difference for max", self.file.iloc[1,0] - self.file.iloc[0,0])
         if self.absolute_length is not None:
             n = int(self.absolute_length / (self.file.iloc[1, 0] - self.file.iloc[0, 0]))
             self.file = self.file.iloc[:n+1]
-        print("printing self.file", self.file)
         points_to_take = np.linspace(0, len(self.file) - 1, self.number_of_points+1)
         points_to_take = [int(x) for x in points_to_take]
         points_to_take.remove(0)
@@ -190,58 +185,9 @@ class GermlineAnalyzer(object):
 
         self.df = self.convertDictionaryToDf(d)
         self.filenames = filenames
-        print("filenames", self.filenames)
         return self.df
 
 
-##TESTING NEW FUNCTIONALITY
-
-# files = ["./Values/Values1.csv", "./Values/Values2.csv"]
-#
-# a = GetList(standarized=False,fold_increased=False,number_of_points=30,percentage_for_fold_increase=[0, 0.04])
-# a.setFile(pd.read_csv("./Values/Values1.csv"))
-# c,b = a.return_length()
-# print(c,b)
 
 
-
-# file = "./Values/Libro1.csv"
-# print(read_mitotic_file_into_average(file))
-#
-# from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
-#
-#
-# files = ["./Values/Values1.csv", "./Values/Values2.csv"]
-# d= files_to_dictionary(files)
-# print("dictionary", d)
-# germline = GermlineAnalyzer(d, standarized=False, number_of_points=33, percentage_for_fold_increase=[0.00, 0.04])
-# germline2 = GermlineAnalyzer(d, standarized=False, number_of_points=33, percentage_for_fold_increase=[0.00, 0.04])
-# fig = plotGermline([germline.process(), germline2.process()], title="PRUEBA",
-#               strain_name_list=["MES-4", "MES-4 falso"],
-#               file_namelist_list=[files,files], dpi=200)
-# png = convert_plot_to_png(fig)
-# encode_png_to_base64(png)
-
-
-
-# getlister = GetList(number_of_points=25)
-# getlister.setFile("../Values/Values1.csv")
-# getlister.createListOfPoints()
-# getlister.standarizeFile()
-# getlister.returnList()
-# getlister.plot()
-
-# #get absolute
-# getlister2 = GetList(number_of_points=25)
-# getlister2.setFile("../Values/Values1.csv")
-# getlister2.createListOfPoints()
-# getlister2.returnList()
-# getlister2.plot()
-#
-# #get fold_increase
-# getlister3 = GetList(standarized=False, fold_increase=True, number_of_points=100, percentage_for_fold_increase=[0, 0.02])
-# getlister3.setFile("../Values/Values1.csv")
-# getlister3.createListOfPoints()
-# getlister3.fold_increase_standarize()
-# getlister3.returnList()
 
