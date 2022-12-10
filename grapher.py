@@ -10,15 +10,30 @@ import base64
 standard_colors = [[0, 0.4470, 0.7410],[0.8500, 0.3250, 0.0980],[0.4660, 0.6740, 0.1880],[0.6350, 0.0780, 0.1840],[0.4940, 0.1840, 0.5560],[0.3010, 0.7450, 0.9330],[0.9290, 0.6940, 0.1250]]
 
 def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_namelist_list=["None"], mitotic_mode = False, strains_mitotic_percentage=["32","25"], strains_error=["5","3"],
-                 dpi=200, average_length=100):
-
+                 dpi=200, average_length=100, absolute_cut=None):
+    CONVERSION = 0.22/3.5
+    print("absolute", absolute_cut)
+    unit_conversion = True
     #place plot point in the midle of interval (for ex. for 10 intervals, first point will be at 5%)
     v = 100 / len(df[0].average)
     transformer = lambda x: (x+(v/2))
     a = np.array([transformer(xi) for xi in df[0].index * v])
-    super_average = round(sum([a[1] for a in average_length])/len(average_length),1)
-    b = np.array([round(e*super_average/100,1) for e in a])
-    print(b)
+    if unit_conversion:
+        if absolute_cut:
+            super_average = absolute_cut
+            print("absolute super average", super_average)
+        else:
+            #super_average calculates average length of all strains
+            print("average_length", average_length)
+            super_average = round(sum([a[1] for a in average_length])/len(average_length),1)
+            print("super_average", super_average)
+
+        super_average_converted = super_average * CONVERSION
+        #b is x axis values converted to new units
+        b = np.array([round(e*super_average_converted/100,1) for e in a])
+        print("inside plotGermline")
+        print("a",a,"b",b)
+        a = b
 
     if mitotic_mode:
         fig, axis = plt.subplots(2, constrained_layout=True,
@@ -29,7 +44,7 @@ def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_nameli
                              label=f'{strain_name_list[i]} n={len(file_namelist_list[i])}', linestyle=':', marker='^',
                              capsize=3,
                              elinewidth=0.7)
-        axis[1].set_xlim(0, 100)
+        axis[1].set_xlim(0, a[-1]+1)
         axis[1].legend()
         strains = strain_name_list
         mean_mitotic_percentage = [float(p) for p in strains_mitotic_percentage]
@@ -50,7 +65,7 @@ def plotGermline(df, title="no title", strain_name_list=["NO TITLE"],file_nameli
                              label=f'{strain_name_list[i]} n={len(file_namelist_list[i])}', linestyle=':', marker='^',
                              capsize=3,
                              elinewidth=0.7)
-        axis.set_xlim(0, 100)
+        axis.set_xlim(0, a[-1]+1)
         # #UNCOMMENT FOR Y LIM
         # axis.set_ylim(30, 108)
         # ax2 = fig.add_axes((0.1, 0.1, 0.8, 0.0))

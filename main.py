@@ -195,7 +195,7 @@ def plot(strains):
                            file_namelist_list=files_list_list,
                            mitotic_mode=mitotic_switched_on,
                            strains_mitotic_percentage=mitotic_graph_info, strains_error=mitotic_graph_error,
-                           dpi=dpi, average_length=average_length)
+                           dpi=dpi, average_length=average_length, absolute_cut=abs)
         png = convert_plot_to_png(fig)
         b64 = encode_png_to_base64(png)
 
