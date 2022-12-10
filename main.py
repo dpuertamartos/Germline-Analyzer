@@ -36,7 +36,6 @@ def index():
 @app.route('/multiplestrains/<int:strainnumber>', methods=['GET', 'POST'])
 def multiplestrains_plot(strainnumber):
     if request.method == 'POST':
-        # TODO OPTIONAL: Store dataframes in database then retrieve them for each plot configuration
         # TODO 3: Fix get starter guide
         # TODO 4: Reorganize imports , .env, .gitignore and all
         # TODO OPTIONAL: Organize dataframes stored per user
@@ -92,7 +91,6 @@ def mitotic_graph(strains):
         for n in range(strains):
 
             file = request.files.getlist(f'file1{n}')[0]
-            print(file)
             if not allowed_file(file.filename):
                 flash('Please upload only .csv (excel) files')
                 return redirect(request.url)
@@ -100,7 +98,7 @@ def mitotic_graph(strains):
             result.append(av)
             result_std.append(dv)
 
-        print("mitotic zone", result)
+
         session["mitotic_zone"] = result
         session["mitotic_zone_error"] = result_std
         session["mitotic_mode"] = "True"
@@ -114,16 +112,12 @@ def plot(strains):
     #TODO 1: LET USER PERMANTENT STORE THEIR DATA
     #TODO 2: FIX MOBILE INTERFACE(NUMBER OF STRAINS SELECTOR AND POSS OTHER)
     #TODO 3: CLEAN CODE
-    #TODO 4: BUG WHEN YOU CHOOSE MITOTIC ZONE OPTION, THEY WILL ALL HAVE THE SAME NAME
     #TODO 5: IMPROVE AESTHETIC OF GONAD LENGTH
-    #TODO 9: CHANGE PLOT TO SHOW ABSOLUTE UNITS (pixels, micros, cell diameters)
-    #OF FIRST STRAIN IN THE MITOTIC ZONE LOAD DATA WINDOW
 
     id = session.get("id")
     mitotic_graph_info = session.get("mitotic_zone")
     mitotic_graph_error = session.get("mitotic_zone_error")
     mitotic_files_loaded = session.get("mitotic_mode") == "True"
-    print("retrieved mitotic graph info", mitotic_graph_info, mitotic_graph_error)
     strain_name_list = session.get("strain_name_list")
     files_list_list = session.get("files_list_list")
     print("retrieving session", strain_name_list,files_list_list)
@@ -146,8 +140,7 @@ def plot(strains):
     average_length = calculate_average_length(final_length_list, strain_name_list)
     min_length = extract_min_length(final_length_list)
     can_absolute_length = determine_same_length_units(final_length_list)
-    print("min", min_length)
-    print("final length list", final_length_list)
+
 
 
     if request.method == 'POST':
@@ -175,7 +168,6 @@ def plot(strains):
         range_start = per_fld.split(" - ")[0]
         range_end = per_fld.split(" - ")[1]
         range_array = [int(range_start) / 100, int(range_end) / 100]
-        print("per_fld", per_fld, range_start, range_end, range_array)
         option2 = request.form.getlist('flexRadioLength')
         px = option2[0] == "px"
         mc = option2[0] == "mc"
@@ -204,15 +196,16 @@ def plot(strains):
                                     percentage_for_fold_increase=range_array, absolute_length=abs)
 
             list_of_dataframes_processed.append(germline.process())
-            print("germline length", germline.return_max_length())
 
-        fig = plotGermline(list_of_dataframes_processed, title="PRUEBA",
+
+        fig = plotGermline(list_of_dataframes_processed, title="",
                            strain_name_list=strain_name_list,
                            file_namelist_list=files_list_list,
                            mitotic_mode=mitotic_switched_on,
                            strains_mitotic_percentage=mitotic_graph_info, strains_error=mitotic_graph_error,
                            dpi=dpi, average_length=average_length, absolute_cut=abs,
-                           conversion=convert_ratio_finale)
+                           conversion=convert_ratio_finale,
+                           x_label=[px, mc, gcd], y_label=[std, fld, [range_start, range_end]])
         png = convert_plot_to_png(fig)
         b64 = encode_png_to_base64(png)
 
@@ -246,7 +239,6 @@ def trial():
     session["strain_name_list"] = strain_name_list
     #storing DF to database(table name=strain name+file name)
     df_list = [{f.split("/")[2]: pd.read_csv(f) for f in files}]
-    print(df_list)
     for i in range(len(df_list)):
         for key in df_list[i]:
             df_list[i][key].to_sql(name=strain_name_list[i]+key+id, con=db.engine, index=False)
