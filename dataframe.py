@@ -57,7 +57,7 @@ def determine_same_length_units(l_list_list):
     for strain in l_list_list:
         for length in strain:
             units.add(length[1])
-    return len(units) == 1
+    return [len(units) == 1, list(units)[0]]
 
 class GetList(object):
     def __init__(self, standarized=False, fold_increased=False, number_of_points=50,

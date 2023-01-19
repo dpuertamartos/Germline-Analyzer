@@ -152,7 +152,9 @@ def plot(strains):
     final_length_list = extract_length(dataframes)
     average_length = calculate_average_length(final_length_list, strain_name_list)
     min_length = extract_min_length(final_length_list)
-    can_absolute_length = determine_same_length_units(final_length_list)
+    determine_units = determine_same_length_units(final_length_list)
+    can_absolute_length = determine_units[0]
+    unit = determine_units[1]
 
 
 
@@ -187,13 +189,28 @@ def plot(strains):
         gcd = option2[0] == "gcd"
         convert_ratio = float(request.form.get("convert_ratio"))
         convert_ratio_finale = None
-        if px:
-            convert_ratio_finale = 1
-        elif mc:
-            convert_ratio_finale = convert_ratio
-        elif gcd:
-            #micron to gcd ratio is hardcoded as 1/3.5
-            convert_ratio_finale = convert_ratio / 3.5
+        if can_absolute_length:
+            if px:
+                if "pixel" in unit:
+                    convert_ratio_finale = 1
+                else:
+                    px = False
+            elif mc:
+                if "pixel" in unit:
+                    convert_ratio_finale = convert_ratio
+                elif "micr" in unit:
+                    convert_ratio_finale = 1
+                else:
+                    mc = False
+            elif gcd:
+                if "pixel" in unit:
+                     #micron to gcd ratio is hardcoded as 1/3.5
+                    convert_ratio_finale = convert_ratio / 3.5
+                elif "micr" in unit:
+                    convert_ratio_finale = 1 / 3.5
+                else:
+                    gcd = False
+
 
         # flash error if range for fold increase is not enough for 1 point
         if fld and int(int(points) * (range_array[1] - range_array[0])) == 0:
