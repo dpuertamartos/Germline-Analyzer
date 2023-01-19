@@ -16,7 +16,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 
 # Initialize with a Project Key
-deta = Deta()
+deta = Deta("a0z48zlp_iQK6JbMgWztH7dR8XcgPY4PYGwFMQ8bk")
 
 # This how to connect to or create a database.
 db = deta.Base("simple_db")
@@ -71,9 +71,19 @@ def multiplestrains_plot(strainnumber):
         for i in range(len(df_list)):
             dfs_to_write = []
             for key in df_list[i]:
-                print(df_list[i][key])
                 dfs_to_write.append(df_list[i][key].to_json())
-            db.put(dfs_to_write, strain_name_list[i] + id, expire_in=2000)
+            # if len(dfs_to_write) > 10:
+            #     steps = int(len(dfs_to_write)/10)+1
+            #     print("number of steps", steps)
+            #     for x in range(steps):
+            #         if x+1 == steps:
+            #             mini_dfs_to_write = dfs_to_write[10 * x::]
+            #         else:
+            #             mini_dfs_to_write = dfs_to_write[10*x:10*(x+1)]
+            #         db.put(mini_dfs_to_write, strain_name_list[i] + id + str(x), expire_in=2000)
+            #
+            # else:
+                db.put(df_list[i][key].to_json(), strain_name_list[i] + key + id, expire_in=2000)
 
         session["id"] = id
         session["files_list_list"] = file_namelist_list
@@ -134,8 +144,8 @@ def plot(strains):
         s = strain_name_list[x]
         for j in range(len(files_list_list[x])):
             f = files_list_list[x][j]
-            raw = db.get(s + id)
-            dictio[f] = pd.read_json(raw["value"][j])
+            raw = db.get(s + f + id)
+            dictio[f] = pd.read_json(raw["value"])
         dataframes.append(dictio)
 
     #extract lenght info
@@ -241,7 +251,8 @@ def trial():
     session["strain_name_list"] = strain_name_list
     #storing DF to database
     df_list = [pd.read_csv(f).to_json() for f in files]
-    db.put(df_list,"MES-4::GFP"+id,expire_in=2000)
+    for i in range(len(files)):
+        db.put(df_list[i], "MES-4::GFP"+files[i].split("/")[2]+id, expire_in=2000)
 
     return redirect(url_for('plot', strains=1))
 
