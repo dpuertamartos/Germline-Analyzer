@@ -6,7 +6,6 @@ import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 import random
-from deta import Deta
 import json
 
 # Allowed extension you can set your own
@@ -15,11 +14,8 @@ ALLOWED_EXTENSIONS = set(['csv'])
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 
-# Initialize with a Project Key
-deta = Deta("a0z48zlp_iQK6JbMgWztH7dR8XcgPY4PYGwFMQ8bk")
-
-# This how to connect to or create a database.
-db = deta.Base("simple_db")
+# Using a Python dictionary as a temporary storage
+storage = {}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -72,18 +68,7 @@ def multiplestrains_plot(strainnumber):
             dfs_to_write = []
             for key in df_list[i]:
                 dfs_to_write.append(df_list[i][key].to_json())
-            # if len(dfs_to_write) > 10:
-            #     steps = int(len(dfs_to_write)/10)+1
-            #     print("number of steps", steps)
-            #     for x in range(steps):
-            #         if x+1 == steps:
-            #             mini_dfs_to_write = dfs_to_write[10 * x::]
-            #         else:
-            #             mini_dfs_to_write = dfs_to_write[10*x:10*(x+1)]
-            #         db.put(mini_dfs_to_write, strain_name_list[i] + id + str(x), expire_in=2000)
-            #
-            # else:
-                db.put(df_list[i][key].to_json(), strain_name_list[i] + key + id, expire_in=2000)
+                storage[strain_name_list[i] + key + id] = df_list[i][key].to_json()
 
         session["id"] = id
         session["files_list_list"] = file_namelist_list
@@ -144,8 +129,8 @@ def plot(strains):
         s = strain_name_list[x]
         for j in range(len(files_list_list[x])):
             f = files_list_list[x][j]
-            raw = db.get(s + f + id)
-            dictio[f] = pd.read_json(raw["value"])
+            raw = storage.get(s + f + id)
+            dictio[f] = pd.read_json(raw)
         dataframes.append(dictio)
 
     #extract lenght info
