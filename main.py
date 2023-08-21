@@ -7,6 +7,7 @@ import os
 from werkzeug.utils import secure_filename
 import random
 import json
+import sys
 
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv'])
@@ -247,14 +248,17 @@ def trial():
     id = str(random.randint(0, 100000))
     session["id"] = id
     strain_name_list = ["MES-4::GFP"]
-    files = ["./Values/Values1.csv", "./Values/Values2.csv","./Values/Values3.csv",
-             "./Values/Values4.csv", "./Values/Values5.csv", "./Values/Values6.csv"]
-    session["files_list_list"] = [[f.split("/")[2] for f in files]]
+    full_path = "C:/Users/David/PycharmProjects/Germline-Analyzer"
+    files = ["/Values/Values1.csv", "/Values/Values2.csv", "/Values/Values3.csv",
+             "/Values/Values4.csv", "/Values/Values5.csv", "/Values/Values6.csv"]
+    files = [full_path+f for f in files]
+    session["files_list_list"] = [[f.split("/")[-1] for f in files]]
     session["strain_name_list"] = strain_name_list
+    print("prueba apertura archivo", pd.read_csv(files[0]))
     #storing DF to database
     df_list = [pd.read_csv(f).to_json() for f in files]
     for i in range(len(files)):
-        db.put(df_list[i], "MES-4::GFP"+files[i].split("/")[2]+id, expire_in=2000)
+        storage["MES-4::GFP"+files[i].split("/")[-1]+id] = df_list[i]
 
     return redirect(url_for('plot', strains=1))
 
