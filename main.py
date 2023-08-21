@@ -9,10 +9,15 @@ import random
 import json
 import sys
 
+if getattr(sys, 'frozen', False):
+    template_folder = os.path.join(sys._MEIPASS, 'templates')
+    static_folder = os.path.join(sys._MEIPASS, 'static')
+    app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+else:
+    app = Flask(__name__)
+
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv'])
-
-app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 
 # Using a Python dictionary as a temporary storage
