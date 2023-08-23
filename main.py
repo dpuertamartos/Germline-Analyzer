@@ -247,24 +247,41 @@ def plot(strains):
                            npoints=50, range_fold="0-4", range_fold_1=0, range_fold_2=4, std=False, fld=False, dpi=100,
                            mitotic=mitotic_files_loaded, mitotic_switched_on=True, px=False, mc=False, gcd=False, convert_ratio=0.22)
 
+
 @app.route('/trial', methods=['GET'])
 def trial():
+    def resource_path(relative_path):
+        """ Get the absolute path for bundled data files in PyInstaller. """
+        try:
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
+
     session["mitotic_zone"] = [22.89]
     session["mitotic_zone_error"] = [3.69]
     session["mitotic_mode"] = "True"
     id = str(random.randint(0, 100000))
     session["id"] = id
     strain_name_list = ["MES-4::GFP"]
-    full_path = "C:/Users/David/PycharmProjects/Germline-Analyzer"
-    files = ["/Values/Values1.csv", "/Values/Values2.csv", "/Values/Values3.csv",
-             "/Values/Values4.csv", "/Values/Values5.csv", "/Values/Values6.csv"]
-    files = [full_path+f for f in files]
+
+    # Use the resource_path function to get the right path
+    files = [
+        resource_path("Values/Values1.csv"),
+        resource_path("Values/Values2.csv"),
+        resource_path("Values/Values3.csv"),
+        resource_path("Values/Values4.csv"),
+        resource_path("Values/Values5.csv"),
+        resource_path("Values/Values6.csv"),
+    ]
+
     session["files_list_list"] = [[f.split("/")[-1] for f in files]]
     session["strain_name_list"] = strain_name_list
-    #storing DF to database
+
+    # Storing DF to database
     df_list = [pd.read_csv(f).to_json() for f in files]
     for i in range(len(files)):
-        storage["MES-4::GFP"+files[i].split("/")[-1]+id] = df_list[i]
+        storage["MES-4::GFP" + files[i].split("/")[-1] + id] = df_list[i]
 
     return redirect(url_for('plot', strains=1))
 
