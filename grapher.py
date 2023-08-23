@@ -84,7 +84,6 @@ def plotGermline(df, title="", strain_name_list=["NO TITLE"],file_namelist_list=
         axis.set_ylabel(extract_y_label(y_label), fontsize=13)
         axis.legend(prop={'size': 13, 'style': 'italic'})
 
-    plt.show()
     return fig
 
 def convert_plot_to_png(fig):
