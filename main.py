@@ -8,6 +8,11 @@ from werkzeug.utils import secure_filename
 import random
 import json
 import sys
+import webbrowser
+import logging
+from waitress import serve
+import socket
+
 
 if getattr(sys, 'frozen', False):
     template_folder = os.path.join(sys._MEIPASS, 'templates')
@@ -96,7 +101,6 @@ def mitotic_graph(strains):
         for n in range(strains):
 
             file = request.files.getlist(f'file1{n}')[0]
-            print(file)
             if not allowed_file(file.filename):
                 flash('Please upload only .csv (excel) files')
                 return redirect(request.url)
@@ -104,7 +108,6 @@ def mitotic_graph(strains):
             result.append(av)
             result_std.append(dv)
 
-        print("mitotic zone", result)
         session["mitotic_zone"] = result
         session["mitotic_zone_error"] = result_std
         session["mitotic_mode"] = "True"
@@ -126,7 +129,6 @@ def plot(strains):
     mitotic_files_loaded = session.get("mitotic_mode") == "True"
     strain_name_list = session.get("strain_name_list")
     files_list_list = session.get("files_list_list")
-    print("retrieving session", strain_name_list,files_list_list)
 
     # def retrieve_from_db:
     dataframes = []
@@ -259,7 +261,6 @@ def trial():
     files = [full_path+f for f in files]
     session["files_list_list"] = [[f.split("/")[-1] for f in files]]
     session["strain_name_list"] = strain_name_list
-    print("prueba apertura archivo", pd.read_csv(files[0]))
     #storing DF to database
     df_list = [pd.read_csv(f).to_json() for f in files]
     for i in range(len(files)):
@@ -267,5 +268,43 @@ def trial():
 
     return redirect(url_for('plot', strains=1))
 
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    # Suppress Flask's default logs
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+    # Suppress Waitress's warnings
+    waitress_logger = logging.getLogger('waitress')
+    waitress_logger.setLevel(logging.ERROR)
+
+    # Determine the machine's local IP address
+    try:
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+    except Exception as e:
+        print("local ip could not be detected")
+        print(f"complete error -> {str(e)}")
+        local_ip = "error"
+
+    # Display custom message
+    print(f"Application will be deployed on http://{local_ip}:5000/")
+    print("Opening browser...")
+
+    # Open the web browser
+    try:
+        webbrowser.open(f"http://{local_ip}:5000/")
+    except Exception as e:
+        print(f"browser could not be automatically opened on http://{local_ip}:5000/ . You can open it manually")
+
+    print("Close this window to finish 'Germline-Analyzer' execution")
+    # Run the Flask app
+    try:
+        serve(app, host="0.0.0.0", port=5000)
+    except Exception as e:
+        print(f"Application could not be deployed in http://{local_ip}:5000/ , try to open port 5000")
+        print(f"complete error -> {str(e)}")
+
+
+
+
+
