@@ -6,20 +6,27 @@ import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 import random
-from deta import Deta
 import json
+import sys
+import webbrowser
+import logging
+from waitress import serve
+import socket
+
+
+if getattr(sys, 'frozen', False):
+    template_folder = os.path.join(sys._MEIPASS, 'templates')
+    static_folder = os.path.join(sys._MEIPASS, 'static')
+    app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+else:
+    app = Flask(__name__)
 
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv'])
-
-app = Flask(__name__)
 app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 
-# Initialize with a Project Key
-deta = Deta("a0z48zlp_iQK6JbMgWztH7dR8XcgPY4PYGwFMQ8bk")
-
-# This how to connect to or create a database.
-db = deta.Base("simple_db")
+# Using a Python dictionary as a temporary storage
+storage = {}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -72,18 +79,7 @@ def multiplestrains_plot(strainnumber):
             dfs_to_write = []
             for key in df_list[i]:
                 dfs_to_write.append(df_list[i][key].to_json())
-            # if len(dfs_to_write) > 10:
-            #     steps = int(len(dfs_to_write)/10)+1
-            #     print("number of steps", steps)
-            #     for x in range(steps):
-            #         if x+1 == steps:
-            #             mini_dfs_to_write = dfs_to_write[10 * x::]
-            #         else:
-            #             mini_dfs_to_write = dfs_to_write[10*x:10*(x+1)]
-            #         db.put(mini_dfs_to_write, strain_name_list[i] + id + str(x), expire_in=2000)
-            #
-            # else:
-                db.put(df_list[i][key].to_json(), strain_name_list[i] + key + id, expire_in=2000)
+                storage[strain_name_list[i] + key + id] = df_list[i][key].to_json()
 
         session["id"] = id
         session["files_list_list"] = file_namelist_list
@@ -105,7 +101,6 @@ def mitotic_graph(strains):
         for n in range(strains):
 
             file = request.files.getlist(f'file1{n}')[0]
-            print(file)
             if not allowed_file(file.filename):
                 flash('Please upload only .csv (excel) files')
                 return redirect(request.url)
@@ -113,7 +108,6 @@ def mitotic_graph(strains):
             result.append(av)
             result_std.append(dv)
 
-        print("mitotic zone", result)
         session["mitotic_zone"] = result
         session["mitotic_zone_error"] = result_std
         session["mitotic_mode"] = "True"
@@ -135,7 +129,6 @@ def plot(strains):
     mitotic_files_loaded = session.get("mitotic_mode") == "True"
     strain_name_list = session.get("strain_name_list")
     files_list_list = session.get("files_list_list")
-    print("retrieving session", strain_name_list,files_list_list)
 
     # def retrieve_from_db:
     dataframes = []
@@ -144,8 +137,8 @@ def plot(strains):
         s = strain_name_list[x]
         for j in range(len(files_list_list[x])):
             f = files_list_list[x][j]
-            raw = db.get(s + f + id)
-            dictio[f] = pd.read_json(raw["value"])
+            raw = storage.get(s + f + id)
+            dictio[f] = pd.read_json(raw)
         dataframes.append(dictio)
 
     #extract lenght info
@@ -262,16 +255,56 @@ def trial():
     id = str(random.randint(0, 100000))
     session["id"] = id
     strain_name_list = ["MES-4::GFP"]
-    files = ["./Values/Values1.csv", "./Values/Values2.csv","./Values/Values3.csv",
-             "./Values/Values4.csv", "./Values/Values5.csv", "./Values/Values6.csv"]
-    session["files_list_list"] = [[f.split("/")[2] for f in files]]
+    full_path = "C:/Users/David/PycharmProjects/Germline-Analyzer"
+    files = ["/Values/Values1.csv", "/Values/Values2.csv", "/Values/Values3.csv",
+             "/Values/Values4.csv", "/Values/Values5.csv", "/Values/Values6.csv"]
+    files = [full_path+f for f in files]
+    session["files_list_list"] = [[f.split("/")[-1] for f in files]]
     session["strain_name_list"] = strain_name_list
     #storing DF to database
     df_list = [pd.read_csv(f).to_json() for f in files]
     for i in range(len(files)):
-        db.put(df_list[i], "MES-4::GFP"+files[i].split("/")[2]+id, expire_in=2000)
+        storage["MES-4::GFP"+files[i].split("/")[-1]+id] = df_list[i]
 
     return redirect(url_for('plot', strains=1))
 
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    # Suppress Flask's default logs
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+    # Suppress Waitress's warnings
+    waitress_logger = logging.getLogger('waitress')
+    waitress_logger.setLevel(logging.ERROR)
+
+    # Determine the machine's local IP address
+    try:
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+    except Exception as e:
+        print("local ip could not be detected")
+        print(f"complete error -> {str(e)}")
+        local_ip = "error"
+
+    # Display custom message
+    print(f"Application will be deployed on http://{local_ip}:5000/")
+    print("Opening browser...")
+
+    # Open the web browser
+    try:
+        webbrowser.open(f"http://{local_ip}:5000/")
+    except Exception as e:
+        print(f"browser could not be automatically opened on http://{local_ip}:5000/ . You can open it manually")
+
+    print("Close this window to finish 'Germline-Analyzer' execution")
+    # Run the Flask app
+    try:
+        serve(app, host="0.0.0.0", port=5000)
+    except Exception as e:
+        print(f"Application could not be deployed in http://{local_ip}:5000/ , try to open port 5000")
+        print(f"complete error -> {str(e)}")
+
+
+
+
+

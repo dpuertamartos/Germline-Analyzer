@@ -37,12 +37,9 @@ def plotGermline(df, title="", strain_name_list=["NO TITLE"],file_namelist_list=
     if conversion:
         if absolute_cut:
             super_average = absolute_cut
-            print("absolute super average", super_average)
         else:
             #super_average calculates average length of all strains
-            print("average_length", average_length)
             super_average = round(sum([a[1] for a in average_length])/len(average_length),1)
-            print("super_average", super_average)
 
         super_average_converted = super_average * conversion
         #b is x axis values converted to new units
@@ -84,7 +81,6 @@ def plotGermline(df, title="", strain_name_list=["NO TITLE"],file_namelist_list=
         axis.set_ylabel(extract_y_label(y_label), fontsize=13)
         axis.legend(prop={'size': 13, 'style': 'italic'})
 
-    plt.show()
     return fig
 
 def convert_plot_to_png(fig):

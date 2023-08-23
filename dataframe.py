@@ -169,7 +169,6 @@ class GermlineAnalyzer(object):
             print("df not processed yet")
 
     def process(self):
-        print("processing")
         d = {}
         filenames = []
         for key in self.dictio.keys():
