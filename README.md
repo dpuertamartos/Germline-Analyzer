@@ -14,10 +14,10 @@ Install python 3.8+
 
 0. clone this repository, for example running the command `git clone `
 1. move to the main folder, for example in terminal `cd Germline-Analyzer`
-1B. (recommended) install virtual enviroment
-2. `pip install requirements.txt`
-3. install pyinstaller `pip install pyinstaller`
-4. from the main folder of the project run `pyinstaller main.spec`
+2. (recommended) install virtual enviroment
+3. `pip install requirements.txt`
+4. install pyinstaller `pip install pyinstaller`
+5. from the main folder of the project run `pyinstaller main.spec`
 
 This will create a Germline-Analyzer.exe in the Germline-Analyzer/dist folder
 
