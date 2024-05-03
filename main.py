@@ -7,6 +7,10 @@ import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 import random
+import webbrowser
+import logging
+from waitress import serve
+import socket
 import sys
 import zipfile
 import io
@@ -361,4 +365,36 @@ def trial():
     return redirect(url_for('plot', strains=1))
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    # Suppress Flask's default logs
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+    # Suppress Waitress's warnings
+    waitress_logger = logging.getLogger('waitress')
+    waitress_logger.setLevel(logging.ERROR)
+
+    # Determine the machine's local IP address
+    try:
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+    except Exception as e:
+        print("local ip could not be detected")
+        print(f"complete error -> {str(e)}")
+        local_ip = "error"
+
+    # Display custom message
+    print(f"Application will be deployed on http://{local_ip}:5000/")
+    print("Opening browser...")
+
+    # Open the web browser
+    try:
+        webbrowser.open(f"http://{local_ip}:5000/")
+    except Exception as e:
+        print(f"browser could not be automatically opened on http://{local_ip}:5000/ . You can open it manually")
+
+    print("Close this window to finish 'Germline-Analyzer' execution")
+    # Run the Flask app
+    try:
+        serve(app, host="0.0.0.0", port=5000)
+    except Exception as e:
+        print(f"Application could not be deployed in http://{local_ip}:5000/ , try to open port 5000")
+        print(f"complete error -> {str(e)}")
