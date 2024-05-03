@@ -192,21 +192,26 @@
 
                   </div>
                   <div class="row justify-content-center">
-                      <div class="col-sm-4">
+                      <div class="col-sm-3">
                           <label for="ratio_selector" class="form-label fTitle">ratio (px:micron)</label><input class="rangeValues" type="text" name="convert_ratio" id="ratio_selector" value={{convert_ratio}}>
                       </div>
-                      <div class="col-sm-4">
+                      <div class="col-sm-3">
                           <label for="dpi_selector" class="form-label fTitle">DPI (max 500)</label><input class="rangeValues" type="text" name="dpi" id="dpi_selector" value={{dpi}}>
                       </div>
-                      <div class="col-sm-4">
-                          <div class="row justify-content-center">
-                              <p class="submitbuttoncontainer">
-                                <input type="submit" name="action" class="btn btn-primary submitbutton" value="Submit">
-                              </p>
-                          </div>
+                      <div class="col-sm-3">
+                          <p class="submitbuttoncontainer">
+                            <input type="submit" name="action" class="btn btn-primary submitbutton" value="Submit">
+                          </p>
+                      </div>
+                       <div class="col-sm-3">
                          <div class="row justify-content-center">
                               <p class="submitbuttoncontainer">
-                                <input type="submit" name="action" class="btn btn-secondary downloadbutton" value="Extract table">
+                                <input type="submit" name="action" class="btn btn-secondary downloadbutton" value="Export .csv">
+                              </p>
+                          </div>
+                          <div class="row justify-content-center">
+                              <p class="submitbuttoncontainer">
+                                <input type="submit" name="action" class="btn btn-secondary downloadbutton" value="Export Excel">
                               </p>
                           </div>
                       </div>

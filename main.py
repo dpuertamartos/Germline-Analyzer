@@ -7,7 +7,6 @@ import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 import random
-import json
 import sys
 import zipfile
 import io
@@ -31,43 +30,70 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def download_dataframes_as_csvs(dataframe_dict):
-    """
-    Accepts a dictionary of DataFrames where the keys are the filenames to be used for each CSV file.
-    Returns a .csv if there is only one strain/df
-    Returns a .zip if there is more than one
-    """
-    if len(dataframe_dict.items()) == 1:
-        key = list(dataframe_dict.keys())[0]
-        csv = dataframe_dict[key].to_csv(index=False)
-        response = make_response(csv)
-        cd = f"attachment; filename={key}.csv"
-        response.headers['Content-Disposition'] = cd
-        response.mimetype = 'text/csv'
+def download_dataframes(dataframe_dict, format="csv"):
+    single_file = len(dataframe_dict) == 1
+    buffer = io.BytesIO()
+
+    if single_file:
+        # If only one dataframe, directly return the file
+        key, df = next(iter(dataframe_dict.items()))
+        if format == "csv":
+            df.to_csv(buffer, index=False)
+            mimetype = 'text/csv'
+            filename = f"{key}.csv"
+        elif format == "xls":
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                df.to_excel(writer, index=False, sheet_name='Sheet1')
+            mimetype = 'application/vnd.ms-excel'
+            filename = f"{key}.xlsx"
+        buffer.seek(0)
+        response = make_response(buffer.getvalue())
+        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+        response.mimetype = mimetype
         return response
     else:
-        # Create a byte stream to hold the zip file
-        zip_buffer = io.BytesIO()
-
-        # Create a Zip file
-        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        # Create a Zip file if multiple dataframes
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for filename, df in dataframe_dict.items():
-                # Create a string buffer for each DataFrame
-                csv_buffer = io.StringIO()
-                df.to_csv(csv_buffer, index=False)
-                csv_buffer.seek(0)
-                # Add the CSV file to the zip file with the appropriate name
-                zip_file.writestr(f"{filename}.csv", csv_buffer.getvalue())
-
-        # Reset buffer position to the beginning so the zip file can be read
-        zip_buffer.seek(0)
-
-        # Create a Flask response
+                # Use a BytesIO buffer for each file in the zip
+                file_buffer = io.BytesIO()
+                if format == "csv":
+                    df.to_csv(file_buffer, index=False)
+                    file_buffer.seek(0)
+                    zip_file.writestr(f"{filename}.csv", file_buffer.getvalue())
+                elif format == "xls":
+                    with pd.ExcelWriter(file_buffer, engine='xlsxwriter') as writer:
+                        df.to_excel(writer, index=False, sheet_name='Sheet1')
+                    file_buffer.seek(0)
+                    zip_file.writestr(f"{filename}.xlsx", file_buffer.getvalue())
+        buffer.seek(0)
         return Response(
-            zip_buffer.getvalue(),
+            buffer.getvalue(),
             mimetype='application/zip',
-            headers={'Content-Disposition': f'attachment;filename=data.zip'}
+            headers={'Content-Disposition': 'attachment;filename=data.zip'}
         )
+
+
+def combine_dataframes_for_file(dataframes, additional_data=None):
+    # Transpose dataframes and create a new DataFrame with each as a column
+    combined_df = pd.DataFrame()
+
+    for i, df in enumerate(dataframes):
+        combined_df = pd.concat([combined_df, dataframes[i]], axis=1)
+
+    # Add additional data columns if provided
+    if additional_data:
+        for key, value in additional_data.items():
+            combined_df[key] = value
+
+    c = combined_df.columns.tolist()
+    if 'length_unit' in c and 'length_interval_start' in c:
+        c.remove('length_unit')
+        start_index = c.index('length_interval_start')
+        c.insert(start_index + 1, 'length_unit')
+        combined_df = combined_df[c]
+
+    return combined_df
 
 
 def process_plot_request(request, unit, min_length, can_absolute_length ):
@@ -265,28 +291,7 @@ def plot(strains):
 
             list_of_dataframes_processed.append(germline.process())
 
-        if action == 'Extract table':
-            def combine_dataframes_for_csv(dataframes, additional_data=None):
-                # Transpose dataframes and create a new DataFrame with each as a column
-                combined_df = pd.DataFrame()
-
-                for i, df in enumerate(dataframes):
-                    combined_df = pd.concat([combined_df, dataframes[i]], axis=1)
-
-                # Add additional data columns if provided
-                if additional_data:
-                    for key, value in additional_data.items():
-                        combined_df[key] = value
-
-                c = combined_df.columns.tolist()
-                if 'length_unit' in c and 'length_interval_start' in c:
-                    c.remove('length_unit')
-                    start_index = c.index('length_interval_start')
-                    c.insert(start_index + 1, 'length_unit')
-                    combined_df = combined_df[c]
-
-                return combined_df
-
+        if "Export" in action:
             additional_data = {
                 'length_unit': extract_x_label([px, mc, gcd]),
                 'fluorescence_unit': extract_y_label([std, fld, [range_start, range_end]])
@@ -299,10 +304,11 @@ def plot(strains):
             x_axis_df = pd.DataFrame(x_axis_points_array, columns=['length_interval_start'])
             dataframes = {}
             for i, df in enumerate(list_of_dataframes_processed):
-                final_dataframe = combine_dataframes_for_csv([x_axis_df]+[df], additional_data)
+                final_dataframe = combine_dataframes_for_file([x_axis_df]+[df], additional_data)
                 dataframes[strain_name_list[i]] = final_dataframe
 
-            return download_dataframes_as_csvs(dataframes)
+            format = "csv" if action == "Export .csv" else "xls"
+            return download_dataframes(dataframes, format)
 
         else:
             fig = plotGermline(list_of_dataframes_processed, title="",
