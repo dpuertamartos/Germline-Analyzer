@@ -1,18 +1,16 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, session, jsonify
+from flask import Flask, render_template, redirect, url_for, flash, request, session, jsonify, make_response, Response
 from dataframe import GermlineAnalyzer, files_to_dictionary, read_mitotic_file_into_average, \
     extract_length, calculate_average_length, determine_same_length_units, extract_min_length
-from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64
+from grapher import plotGermline, convert_plot_to_png, encode_png_to_base64, extract_x_label, extract_y_label, \
+    calculate_x_axis_points
 import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 import random
 import json
 import sys
-import webbrowser
-import logging
-from waitress import serve
-import socket
-
+import zipfile
+import io
 
 if getattr(sys, 'frozen', False):
     template_folder = os.path.join(sys._MEIPASS, 'templates')
@@ -28,8 +26,106 @@ app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6bAB19951993"
 # Using a Python dictionary as a temporary storage
 storage = {}
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def download_dataframes_as_csvs(dataframe_dict):
+    """
+    Accepts a dictionary of DataFrames where the keys are the filenames to be used for each CSV file.
+    Returns a .csv if there is only one strain/df
+    Returns a .zip if there is more than one
+    """
+    if len(dataframe_dict.items()) == 1:
+        key = list(dataframe_dict.keys())[0]
+        csv = dataframe_dict[key].to_csv(index=False)
+        response = make_response(csv)
+        cd = f"attachment; filename={key}.csv"
+        response.headers['Content-Disposition'] = cd
+        response.mimetype = 'text/csv'
+        return response
+    else:
+        # Create a byte stream to hold the zip file
+        zip_buffer = io.BytesIO()
+
+        # Create a Zip file
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for filename, df in dataframe_dict.items():
+                # Create a string buffer for each DataFrame
+                csv_buffer = io.StringIO()
+                df.to_csv(csv_buffer, index=False)
+                csv_buffer.seek(0)
+                # Add the CSV file to the zip file with the appropriate name
+                zip_file.writestr(f"{filename}.csv", csv_buffer.getvalue())
+
+        # Reset buffer position to the beginning so the zip file can be read
+        zip_buffer.seek(0)
+
+        # Create a Flask response
+        return Response(
+            zip_buffer.getvalue(),
+            mimetype='application/zip',
+            headers={'Content-Disposition': f'attachment;filename=data.zip'}
+        )
+
+
+def process_plot_request(request, unit, min_length, can_absolute_length ):
+    action = request.form.get('action')
+
+    option_switch = request.form.get('flexswitch2')
+    abs_switch = request.form.get('flexswitchabs')
+    mitotic_switched_on = option_switch == "on"
+    abs_switched_on = abs_switch == "on"
+    if abs_switched_on:
+        mitotic_switched_on = False
+    abs = None
+    to_show_abs = int(min_length)
+    if abs_switched_on:
+        abs = int(request.form.get("abslengthtxt"))
+        if abs > int(min_length):
+            abs = int(min_length)
+        to_show_abs = abs
+    points = request.form.get("number_of_points")
+    dpi = int(request.form.get("dpi"))
+    if dpi > 500:
+        dpi = 500
+    option = request.form.getlist('flexRadioDefault')
+    std = option[0] == "std"
+    fld = option[0] == "fold"
+    per_fld = request.form.get("rslideValues")
+    range_start = per_fld.split(" - ")[0]
+    range_end = per_fld.split(" - ")[1]
+    range_array = [int(range_start) / 100, int(range_end) / 100]
+    option2 = request.form.getlist('flexRadioLength')
+    px = option2[0] == "px"
+    mc = option2[0] == "mc"
+    gcd = option2[0] == "gcd"
+    convert_ratio = float(request.form.get("convert_ratio"))
+    convert_ratio_finale = None
+    if can_absolute_length:
+        if px:
+            if "pixel" in unit:
+                convert_ratio_finale = 1
+            else:
+                px = False
+        elif mc:
+            if "pixel" in unit:
+                convert_ratio_finale = convert_ratio
+            elif "micr" in unit:
+                convert_ratio_finale = 1
+            else:
+                mc = False
+        elif gcd:
+            if "pixel" in unit:
+                # micron to gcd ratio is hardcoded as 1/3.5
+                convert_ratio_finale = convert_ratio / 3.5
+            elif "micr" in unit:
+                convert_ratio_finale = 1 / 3.5
+            else:
+                gcd = False
+    return action, px, mc, gcd, convert_ratio_finale, convert_ratio, std, fld, per_fld, range_array, \
+           mitotic_switched_on, abs_switched_on, abs, points, dpi, to_show_abs, range_start, range_end
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -92,6 +188,7 @@ def multiplestrains_plot(strainnumber):
 
     return render_template('multiplestrains_plot.html', lines=strainnumber)
 
+
 @app.route('/mitotic_graph/<int:strains>',methods=['GET','POST'])
 def mitotic_graph(strains):
     strain_name_list = session.get("strain_name_list")
@@ -149,61 +246,10 @@ def plot(strains):
     can_absolute_length = determine_units[0]
     unit = determine_units[1]
 
-
-
     if request.method == 'POST':
-        option_switch = request.form.get('flexswitch2')
-        abs_switch = request.form.get('flexswitchabs')
-        mitotic_switched_on = option_switch == "on"
-        abs_switched_on = abs_switch == "on"
-        if abs_switched_on:
-            mitotic_switched_on = False
-        abs = None
-        to_show_abs = int(min_length)
-        if abs_switched_on:
-            abs = int(request.form.get("abslengthtxt"))
-            if abs > int(min_length):
-                abs = int(min_length)
-            to_show_abs = abs
-        points = request.form.get("number_of_points")
-        dpi = int(request.form.get("dpi"))
-        if dpi > 500:
-            dpi = 500
-        option = request.form.getlist('flexRadioDefault')
-        std = option[0] == "std"
-        fld = option[0] == "fold"
-        per_fld = request.form.get("rslideValues")
-        range_start = per_fld.split(" - ")[0]
-        range_end = per_fld.split(" - ")[1]
-        range_array = [int(range_start) / 100, int(range_end) / 100]
-        option2 = request.form.getlist('flexRadioLength')
-        px = option2[0] == "px"
-        mc = option2[0] == "mc"
-        gcd = option2[0] == "gcd"
-        convert_ratio = float(request.form.get("convert_ratio"))
-        convert_ratio_finale = None
-        if can_absolute_length:
-            if px:
-                if "pixel" in unit:
-                    convert_ratio_finale = 1
-                else:
-                    px = False
-            elif mc:
-                if "pixel" in unit:
-                    convert_ratio_finale = convert_ratio
-                elif "micr" in unit:
-                    convert_ratio_finale = 1
-                else:
-                    mc = False
-            elif gcd:
-                if "pixel" in unit:
-                     #micron to gcd ratio is hardcoded as 1/3.5
-                    convert_ratio_finale = convert_ratio / 3.5
-                elif "micr" in unit:
-                    convert_ratio_finale = 1 / 3.5
-                else:
-                    gcd = False
 
+        action, px, mc, gcd, convert_ratio_finale, convert_ratio, std, fld, per_fld, range_array, \
+        mitotic_switched_on, abs_switched_on, abs, points, dpi, to_show_abs, range_start, range_end = process_plot_request(request, unit, min_length, can_absolute_length)
 
         # flash error if range for fold increase is not enough for 1 point
         if fld and int(int(points) * (range_array[1] - range_array[0])) == 0:
@@ -218,27 +264,66 @@ def plot(strains):
                                     percentage_for_fold_increase=range_array, absolute_length=abs)
 
             list_of_dataframes_processed.append(germline.process())
-            
 
-        fig = plotGermline(list_of_dataframes_processed, title="",
-                           strain_name_list=strain_name_list,
-                           file_namelist_list=files_list_list,
-                           mitotic_mode=mitotic_switched_on,
-                           strains_mitotic_percentage=mitotic_graph_info, strains_error=mitotic_graph_error,
-                           dpi=dpi, average_length=average_length, absolute_cut=abs,
-                           conversion=convert_ratio_finale,
-                           x_label=[px, mc, gcd], y_label=[std, fld, [range_start, range_end]])
-        png = convert_plot_to_png(fig)
-        b64 = encode_png_to_base64(png)
+        if action == 'Extract table':
+            def combine_dataframes_for_csv(dataframes, additional_data=None):
+                # Transpose dataframes and create a new DataFrame with each as a column
+                combined_df = pd.DataFrame()
 
-        return render_template('plot.html', strains=strains, image=b64, files_list_list=files_list_list,
-                               strain_name_list=strain_name_list, lengths_list_list=final_length_list,
-                               min_length=min_length, current_length=to_show_abs,
-                               average_length=average_length,
-                               can_absolute_length=can_absolute_length, absolute_length_selected = abs_switched_on,
-                               npoints=int(points), range_fold=per_fld,
-                               range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld, dpi=dpi,
-                               mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on, px=px, mc=mc, gcd=gcd, convert_ratio=convert_ratio)
+                for i, df in enumerate(dataframes):
+                    combined_df = pd.concat([combined_df, dataframes[i]], axis=1)
+
+                # Add additional data columns if provided
+                if additional_data:
+                    for key, value in additional_data.items():
+                        combined_df[key] = value
+
+                c = combined_df.columns.tolist()
+                if 'length_unit' in c and 'length_interval_start' in c:
+                    c.remove('length_unit')
+                    start_index = c.index('length_interval_start')
+                    c.insert(start_index + 1, 'length_unit')
+                    combined_df = combined_df[c]
+
+                return combined_df
+
+            additional_data = {
+                'length_unit': extract_x_label([px, mc, gcd]),
+                'fluorescence_unit': extract_y_label([std, fld, [range_start, range_end]])
+            }
+
+            x_axis_points_array = calculate_x_axis_points(list_of_dataframes_processed, convert_ratio_finale, abs,
+                                                    average_length,
+                                                    middle_point=False)
+
+            x_axis_df = pd.DataFrame(x_axis_points_array, columns=['length_interval_start'])
+            dataframes = {}
+            for i, df in enumerate(list_of_dataframes_processed):
+                final_dataframe = combine_dataframes_for_csv([x_axis_df]+[df], additional_data)
+                dataframes[strain_name_list[i]] = final_dataframe
+
+            return download_dataframes_as_csvs(dataframes)
+
+        else:
+            fig = plotGermline(list_of_dataframes_processed, title="",
+                               strain_name_list=strain_name_list,
+                               file_namelist_list=files_list_list,
+                               mitotic_mode=mitotic_switched_on,
+                               strains_mitotic_percentage=mitotic_graph_info, strains_error=mitotic_graph_error,
+                               dpi=dpi, average_length=average_length, absolute_cut=abs,
+                               conversion=convert_ratio_finale,
+                               x_label=[px, mc, gcd], y_label=[std, fld, [range_start, range_end]])
+            png = convert_plot_to_png(fig)
+            b64 = encode_png_to_base64(png)
+
+            return render_template('plot.html', strains=strains, image=b64, files_list_list=files_list_list,
+                                   strain_name_list=strain_name_list, lengths_list_list=final_length_list,
+                                   min_length=min_length, current_length=to_show_abs,
+                                   average_length=average_length,
+                                   can_absolute_length=can_absolute_length, absolute_length_selected = abs_switched_on,
+                                   npoints=int(points), range_fold=per_fld,
+                                   range_fold_1=int(range_start), range_fold_2=int(range_end), std=std, fld=fld, dpi=dpi,
+                                   mitotic=mitotic_files_loaded, mitotic_switched_on=mitotic_switched_on, px=px, mc=mc, gcd=gcd, convert_ratio=convert_ratio)
 
     return render_template('plot.html', strains=strains, files_list_list=files_list_list,strain_name_list=strain_name_list,
                            lengths_list_list=final_length_list, min_length=min_length, current_length=min_length,
@@ -250,78 +335,24 @@ def plot(strains):
 
 @app.route('/trial', methods=['GET'])
 def trial():
-    def resource_path(relative_path):
-        """ Get the absolute path for bundled data files in PyInstaller. """
-        try:
-            base_path = sys._MEIPASS
-        except Exception:
-            base_path = os.path.abspath(".")
-        return os.path.join(base_path, relative_path)
-
     session["mitotic_zone"] = [22.89]
     session["mitotic_zone_error"] = [3.69]
     session["mitotic_mode"] = "True"
     id = str(random.randint(0, 100000))
     session["id"] = id
     strain_name_list = ["MES-4::GFP"]
-
-    # Use the resource_path function to get the right path
-    files = [
-        resource_path("Values/Values1.csv"),
-        resource_path("Values/Values2.csv"),
-        resource_path("Values/Values3.csv"),
-        resource_path("Values/Values4.csv"),
-        resource_path("Values/Values5.csv"),
-        resource_path("Values/Values6.csv"),
-    ]
-
+    full_path = "C:/Users/David/PycharmProjects/Germline-Analyzer"
+    files = ["/Values/Values1.csv", "/Values/Values2.csv", "/Values/Values3.csv",
+             "/Values/Values4.csv", "/Values/Values5.csv", "/Values/Values6.csv"]
+    files = [full_path+f for f in files]
     session["files_list_list"] = [[f.split("/")[-1] for f in files]]
     session["strain_name_list"] = strain_name_list
-
-    # Storing DF to database
+    #storing DF to database
     df_list = [pd.read_csv(f).to_json() for f in files]
     for i in range(len(files)):
-        storage["MES-4::GFP" + files[i].split("/")[-1] + id] = df_list[i]
+        storage["MES-4::GFP"+files[i].split("/")[-1]+id] = df_list[i]
 
     return redirect(url_for('plot', strains=1))
 
-
 if __name__ == "__main__":
-    # Suppress Flask's default logs
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.ERROR)
-    # Suppress Waitress's warnings
-    waitress_logger = logging.getLogger('waitress')
-    waitress_logger.setLevel(logging.ERROR)
-
-    # Determine the machine's local IP address
-    try:
-        hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
-    except Exception as e:
-        print("local ip could not be detected")
-        print(f"complete error -> {str(e)}")
-        local_ip = "error"
-
-    # Display custom message
-    print(f"Application will be deployed on http://{local_ip}:5000/")
-    print("Opening browser...")
-
-    # Open the web browser
-    try:
-        webbrowser.open(f"http://{local_ip}:5000/")
-    except Exception as e:
-        print(f"browser could not be automatically opened on http://{local_ip}:5000/ . You can open it manually")
-
-    print("Close this window to finish 'Germline-Analyzer' execution")
-    # Run the Flask app
-    try:
-        serve(app, host="0.0.0.0", port=5000)
-    except Exception as e:
-        print(f"Application could not be deployed in http://{local_ip}:5000/ , try to open port 5000")
-        print(f"complete error -> {str(e)}")
-
-
-
-
-
+    app.run(host='0.0.0.0', port=5000)

@@ -23,28 +23,39 @@ def extract_y_label(array):
     else:
         return "Absolute intensity (0-255)"
 
-standard_colors = [[0, 0.4470, 0.7410],[0.8500, 0.3250, 0.0980],[0.4660, 0.6740, 0.1880],[0.6350, 0.0780, 0.1840],[0.4940, 0.1840, 0.5560],[0.3010, 0.7450, 0.9330],[0.9290, 0.6940, 0.1250]]
 
-def plotGermline(df, title="", strain_name_list=["NO TITLE"],file_namelist_list=["None"], mitotic_mode = False, strains_mitotic_percentage=["32","25"], strains_error=["5","3"],
-                 dpi=200, average_length=100, absolute_cut=None, conversion=None, x_label=[True, False, False],
-                 y_label=[False, False]):
+def calculate_x_axis_points(df, conversion, absolute_cut, average_length, middle_point=True):
+    # place plot point in the midle of interval (for ex. for 10 intervals, first point will be at 5%)
 
-    #place plot point in the midle of interval (for ex. for 10 intervals, first point will be at 5%)
     v = 100 / len(df[0].average)
-    transformer = lambda x: (x+(v/2))
-    a = np.array([transformer(xi) for xi in df[0].index * v])
+    if middle_point:
+        # position must be added v/2 if you want the middle of the interval
+        transformer = lambda x: (x+(v/2))
+        a = np.array([transformer(xi) for xi in df[0].index * v])
+    else:
+        a = np.array([xi for xi in df[0].index * v])
 
     if conversion:
         if absolute_cut:
             super_average = absolute_cut
         else:
-            #super_average calculates average length of all strains
             super_average = round(sum([a[1] for a in average_length])/len(average_length),1)
 
         super_average_converted = super_average * conversion
-        #b is x axis values converted to new units
-        b = np.array([round(e*super_average_converted/100,1) for e in a])
-        a = b
+        #x axis values converted to new units
+        a = np.array([round(e*super_average_converted/100,1) for e in a])
+
+    return a
+
+
+standard_colors = [[0, 0.4470, 0.7410],[0.8500, 0.3250, 0.0980],[0.4660, 0.6740, 0.1880],[0.6350, 0.0780, 0.1840],[0.4940, 0.1840, 0.5560],[0.3010, 0.7450, 0.9330],[0.9290, 0.6940, 0.1250]]
+
+
+def plotGermline(df, title="", strain_name_list=["NO TITLE"],file_namelist_list=["None"], mitotic_mode = False, strains_mitotic_percentage=["32","25"], strains_error=["5","3"],
+                 dpi=200, average_length=100, absolute_cut=None, conversion=None, x_label=[True, False, False],
+                 y_label=[False, False]):
+
+    a = calculate_x_axis_points(df, conversion, absolute_cut, average_length)
 
     if mitotic_mode and not absolute_cut:
         fig, axis = plt.subplots(2, constrained_layout=True,
@@ -92,4 +103,3 @@ def encode_png_to_base64(png):
     pngImageB64String = "data:image/png;base64,"
     pngImageB64String += base64.b64encode(png.getvalue()).decode('utf8')
     return pngImageB64String
-
